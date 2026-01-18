@@ -33,31 +33,36 @@ export function FloatingIndicator() {
 
   return (
     <div className="fixed bottom-20 right-4 z-50 md:bottom-4">
-      <button
-        onClick={handleClick}
+      <div
         className={cn(
           "flex items-center gap-3 rounded-full border border-border/60 bg-card/95 px-4 py-2 shadow-lg backdrop-blur transition-all",
           "hover:border-primary/50 hover:shadow-xl",
           "animate-in slide-in-from-bottom-5"
         )}
       >
-        {/* Pulsing Indicator */}
-        <div className="relative">
-          <Timer className="h-4 w-4 text-primary" />
-          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-primary" />
-        </div>
+        {/* Clickable area for opening modal */}
+        <button
+          onClick={handleClick}
+          className="flex items-center gap-3 bg-transparent border-none cursor-pointer"
+        >
+          {/* Pulsing Indicator */}
+          <div className="relative">
+            <Timer className="h-4 w-4 text-primary" />
+            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-primary" />
+          </div>
 
-        {/* Time */}
-        <span className="font-mono text-sm font-medium tabular-nums">
-          {formatTime(elapsedTime)}
-        </span>
+          {/* Time */}
+          <span className="font-mono text-sm font-medium tabular-nums">
+            {formatTime(elapsedTime)}
+          </span>
 
-        {/* Task Name */}
-        <span className="max-w-[120px] truncate text-xs text-muted-foreground">
-          {activeStopwatch.task.title}
-        </span>
+          {/* Task Name */}
+          <span className="max-w-[120px] truncate text-xs text-muted-foreground">
+            {activeStopwatch.task.title}
+          </span>
+        </button>
 
-        {/* Control Button */}
+        {/* Control Button - separate from the main click area */}
         <Button
           size="icon"
           variant="ghost"
@@ -71,7 +76,7 @@ export function FloatingIndicator() {
             <Play className="h-3.5 w-3.5" />
           )}
         </Button>
-      </button>
+      </div>
     </div>
   );
 }
