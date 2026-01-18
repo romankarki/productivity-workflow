@@ -117,3 +117,107 @@ export function useDeleteLabel() {
     },
   });
 }
+
+// Task Label Hooks
+
+async function fetchTaskLabels(taskId: string): Promise<Label[]> {
+  const userId = getUserId();
+  if (!userId) return [];
+
+  const response = await fetch(`/api/tasks/${taskId}/labels`, {
+    headers: { "x-user-id": userId },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch task labels");
+  }
+
+  const data = await response.json();
+  return data.labels;
+}
+
+async function addTaskLabel(taskId: string, labelId: string): Promise<Label> {
+  const userId = getUserId();
+  if (!userId) throw new Error("Not authenticated");
+
+  const response = await fetch(`/api/tasks/${taskId}/labels`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-user-id": userId,
+    },
+    body: JSON.stringify({ labelId }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to add label to task");
+  }
+
+  const data = await response.json();
+  return data.label;
+}
+
+async function removeTaskLabel(taskId: string, labelId: string): Promise<void> {
+  const userId = getUserId();
+  if (!userId) throw new Error("Not authenticated");
+
+  const response = await fetch(`/api/tasks/${taskId}/labels?labelId=${labelId}`, {
+    method: "DELETE",
+    headers: { "x-user-id": userId },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to remove label from task");
+  }
+}
+
+export function useTaskLabels(taskId: string) {
+  return useQuery({
+    queryKey: ["taskLabels", taskId],
+    queryFn: () => fetchTaskLabels(taskId),
+    enabled: !!taskId,
+  });
+}
+
+export function useAddTaskLabel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ taskId, labelId }: { taskId: string; labelId: string }) =>
+      addTaskLabel(taskId, labelId),
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries({ queryKey: ["taskLabels", taskId] });
+      queryClient.invalidateQueries({ queryKey: ["taskList"] });
+    },
+  });
+}
+
+export function useRemoveTaskLabel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ taskId, labelId }: { taskId: string; labelId: string }) =>
+      removeTaskLabel(taskId, labelId),
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries({ queryKey: ["taskLabels", taskId] });
+      queryClient.invalidateQueries({ queryKey: ["taskList"] });
+    },
+  });
+}
+
+export function useToggleTaskLabel() {
+  const addLabel = useAddTaskLabel();
+  const removeLabel = useRemoveTaskLabel();
+
+  return {
+    toggle: async (taskId: string, labelId: string, currentLabels: Label[]) => {
+      const hasLabel = currentLabels.some((l) => l.id === labelId);
+      if (hasLabel) {
+        await removeLabel.mutateAsync({ taskId, labelId });
+      } else {
+        await addLabel.mutateAsync({ taskId, labelId });
+      }
+    },
+    isPending: addLabel.isPending || removeLabel.isPending,
+  };
+}
