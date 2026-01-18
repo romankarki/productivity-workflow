@@ -75,6 +75,10 @@ export function Scratchpad({
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  // Count words in notes
+  const wordCount = notes.trim() ? notes.trim().split(/\s+/).length : 0;
+  const lineCount = notes ? notes.split("\n").length : 0;
+
   return (
     <TooltipProvider>
       <div className="rounded-xl border border-zinc-800/60 bg-gradient-to-b from-zinc-900/80 to-zinc-950/90 overflow-hidden backdrop-blur-sm">
@@ -91,8 +95,13 @@ export function Scratchpad({
                 </div>
                 <span className="font-medium text-zinc-200">Scratchpad</span>
                 {!isExpanded && notes && (
-                  <span className="text-xs text-zinc-500 ml-2 truncate max-w-[150px]">
-                    {notes.split("\n")[0]}
+                  <span className="text-xs text-zinc-500 ml-2 truncate max-w-[150px] sm:max-w-[250px]">
+                    {notes.split("\n")[0] || "..."}
+                  </span>
+                )}
+                {!isExpanded && notes && (
+                  <span className="hidden sm:inline text-xs text-zinc-600 ml-1">
+                    ({wordCount} {wordCount === 1 ? "word" : "words"})
                   </span>
                 )}
               </div>
@@ -132,7 +141,7 @@ export function Scratchpad({
               </div>
             </button>
           </TooltipTrigger>
-          <TooltipContent side="left" className="text-xs">
+          <TooltipContent side="left" className="hidden sm:block text-xs">
             <p>{isExpanded ? "Collapse" : "Expand"} scratchpad</p>
             <p className="text-zinc-500">Ctrl+Shift+N</p>
           </TooltipContent>
@@ -152,7 +161,7 @@ export function Scratchpad({
                   ref={textareaRef}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Quick notes, ideas, reminders for today..."
+                  placeholder={`Quick notes for today...\n\n• Meeting notes\n• Ideas to explore\n• Things to remember`}
                   className={cn(
                     "w-full min-h-[120px] max-h-[400px] resize-y",
                     "bg-zinc-950/50 border border-zinc-800/60 rounded-lg",
@@ -163,9 +172,18 @@ export function Scratchpad({
                     "font-mono leading-relaxed"
                   )}
                 />
-                {/* Character count */}
-                <div className="flex items-center justify-end mt-2 text-xs text-zinc-600">
-                  <span>{notes.length} characters</span>
+                {/* Stats footer */}
+                <div className="flex items-center justify-between mt-2 text-xs text-zinc-600">
+                  <div className="flex items-center gap-3">
+                    {notes.length > 0 && (
+                      <>
+                        <span>{wordCount} {wordCount === 1 ? "word" : "words"}</span>
+                        <span className="text-zinc-700">•</span>
+                        <span>{lineCount} {lineCount === 1 ? "line" : "lines"}</span>
+                      </>
+                    )}
+                  </div>
+                  <span>{notes.length} chars</span>
                 </div>
               </div>
             </motion.div>
