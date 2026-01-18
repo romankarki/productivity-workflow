@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useUser } from "@/lib/hooks/use-user";
 import { useStreak } from "@/lib/hooks/use-streak";
+import { useStopwatchContext } from "@/lib/context/stopwatch-context";
+import { formatTimeHuman } from "@/components/stopwatch/time-display";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -27,6 +29,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: user } = useUser();
   const { data: streakData } = useStreak();
+  const { activeStopwatch, elapsedTime } = useStopwatchContext();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/40 bg-card/50 backdrop-blur-xl">
@@ -96,15 +99,35 @@ export function Sidebar() {
 
       {/* Bottom Section */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-border/40 p-4">
-        <div className="rounded-lg bg-gradient-to-br from-violet-500/10 to-purple-500/10 p-4">
+        <div className={cn(
+          "rounded-lg p-4 transition-all",
+          activeStopwatch?.isActive
+            ? "bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-primary/20"
+            : "bg-gradient-to-br from-violet-500/10 to-purple-500/10"
+        )}>
           <p className="text-xs font-medium text-muted-foreground">
-            Today&apos;s Focus
+            {activeStopwatch?.isActive ? "Currently Tracking" : "Today's Focus"}
           </p>
-          <p className="mt-1 text-2xl font-bold tabular-nums">0h 0m</p>
+          <p className={cn(
+            "mt-1 text-2xl font-bold tabular-nums",
+            activeStopwatch?.isActive && "text-primary"
+          )}>
+            {activeStopwatch?.isActive ? formatTimeHuman(elapsedTime) : "0h 0m"}
+          </p>
+          {activeStopwatch?.isActive && (
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              {activeStopwatch.task.title}
+            </p>
+          )}
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
-              style={{ width: "0%" }}
+              className={cn(
+                "h-full rounded-full transition-all duration-500",
+                activeStopwatch?.isActive
+                  ? "bg-gradient-to-r from-primary to-primary/70 animate-pulse"
+                  : "bg-gradient-to-r from-violet-500 to-purple-500"
+              )}
+              style={{ width: activeStopwatch?.isActive ? "100%" : "0%" }}
             />
           </div>
         </div>

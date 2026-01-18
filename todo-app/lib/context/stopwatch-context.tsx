@@ -9,6 +9,7 @@ import {
   ReactNode,
 } from "react";
 import { useActiveStopwatch } from "@/lib/hooks/use-active-stopwatch";
+import { useBeforeUnloadWarning } from "@/lib/hooks/use-beforeunload-warning";
 import { StopwatchWithTask } from "@/lib/types/stopwatch";
 
 interface StopwatchContextValue {
@@ -69,6 +70,9 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   const closeModal = useCallback(() => {
     setModalState((prev) => ({ ...prev, open: false }));
   }, []);
+
+  // Warn before closing tab if stopwatch is active
+  useBeforeUnloadWarning(!!activeStopwatch?.isActive);
 
   return (
     <StopwatchContext.Provider

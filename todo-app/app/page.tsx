@@ -9,6 +9,7 @@ import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
 import { useStreak } from "@/lib/hooks/use-streak";
 import { useGoals } from "@/lib/hooks/use-goals";
+import { useStopwatchContext } from "@/lib/context/stopwatch-context";
 import { useCreateTask, useUpdateTask, useDeleteTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, BarChart3, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { formatTimeHuman } from "@/components/stopwatch/time-display";
 
 export default function Home() {
   const { data: user, isLoading: userLoading } = useUser();
@@ -23,6 +25,7 @@ export default function Home() {
   const { data: taskList, isLoading: taskListLoading } = useTaskList(today);
   const { data: streakData } = useStreak();
   const { data: goalsData } = useGoals(today);
+  const { elapsedTime } = useStopwatchContext();
 
   const createTask = useCreateTask(today);
   const updateTask = useUpdateTask(today);
@@ -127,7 +130,7 @@ export default function Home() {
           todayCompleted={completedToday}
           todayTotal={totalToday}
           weekCompleted={goalsData?.weekly.completed || 0}
-          timeTracked="0h 0m"
+          timeTracked={formatTimeHuman(elapsedTime)}
         />
 
         {/* Main Content Grid */}
