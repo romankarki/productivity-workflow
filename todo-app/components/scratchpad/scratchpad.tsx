@@ -12,7 +12,12 @@ import {
 } from "lucide-react";
 import { useNotes } from "@/lib/hooks/use-notes";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ScratchpadProps {
   taskListId: string;
@@ -36,6 +41,11 @@ export function Scratchpad({
     initialNotes,
     { debounceMs: 500 }
   );
+
+  // Sync with parent's expanded state
+  useEffect(() => {
+    setIsExpanded(defaultExpanded);
+  }, [defaultExpanded]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -66,99 +76,102 @@ export function Scratchpad({
   };
 
   return (
-    <div className="rounded-xl border border-zinc-800/60 bg-gradient-to-b from-zinc-900/80 to-zinc-950/90 overflow-hidden backdrop-blur-sm">
-      {/* Header */}
-      <button
-        onClick={handleToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-800/30 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-amber-500/10">
-            <StickyNote className="w-4 h-4 text-amber-400" />
-          </div>
-          <span className="font-medium text-zinc-200">Scratchpad</span>
-          {!isExpanded && notes && (
-            <span className="text-xs text-zinc-500 ml-2 truncate max-w-[150px]">
-              {notes.split("\n")[0]}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Save status indicator */}
-          {isExpanded && (
-            <div className="flex items-center gap-1.5 text-xs">
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
-                  <span className="text-zinc-400">Saving...</span>
-                </>
-              ) : error ? (
-                <>
-                  <AlertCircle className="w-3 h-3 text-red-400" />
-                  <span className="text-red-400">Error</span>
-                </>
-              ) : isSaved && lastSaved ? (
-                <>
-                  <Check className="w-3 h-3 text-emerald-400" />
-                  <span className="text-zinc-500">
-                    Saved {formatLastSaved(lastSaved)}
+    <TooltipProvider>
+      <div className="rounded-xl border border-zinc-800/60 bg-gradient-to-b from-zinc-900/80 to-zinc-950/90 overflow-hidden backdrop-blur-sm">
+        {/* Header */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleToggle}
+              className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-800/30 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-amber-500/10">
+                  <StickyNote className="w-4 h-4 text-amber-400" />
+                </div>
+                <span className="font-medium text-zinc-200">Scratchpad</span>
+                {!isExpanded && notes && (
+                  <span className="text-xs text-zinc-500 ml-2 truncate max-w-[150px]">
+                    {notes.split("\n")[0]}
                   </span>
-                </>
-              ) : !isSaved ? (
-                <span className="text-zinc-500">Unsaved</span>
-              ) : null}
-            </div>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-zinc-400 hover:text-zinc-200"
-            asChild
-          >
-            <span>
-              {isExpanded ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-            </span>
-          </Button>
-        </div>
-      </button>
-
-      {/* Expandable content */}
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-          >
-            <div className="px-4 pb-4">
-              <textarea
-                ref={textareaRef}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Quick notes, ideas, reminders for today..."
-                className={cn(
-                  "w-full min-h-[120px] max-h-[400px] resize-y",
-                  "bg-zinc-950/50 border border-zinc-800/60 rounded-lg",
-                  "px-3 py-2.5 text-sm text-zinc-200",
-                  "placeholder:text-zinc-600",
-                  "focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50",
-                  "transition-all duration-200",
-                  "font-mono leading-relaxed"
                 )}
-              />
-              {/* Character count */}
-              <div className="flex items-center justify-end mt-2 text-xs text-zinc-600">
-                <span>{notes.length} characters</span>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+              <div className="flex items-center gap-2">
+                {/* Save status indicator */}
+                {isExpanded && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin text-zinc-400" />
+                        <span className="text-zinc-400">Saving...</span>
+                      </>
+                    ) : error ? (
+                      <>
+                        <AlertCircle className="w-3 h-3 text-red-400" />
+                        <span className="text-red-400">Error</span>
+                      </>
+                    ) : isSaved && lastSaved ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-zinc-500">
+                          Saved {formatLastSaved(lastSaved)}
+                        </span>
+                      </>
+                    ) : !isSaved ? (
+                      <span className="text-zinc-500">Unsaved</span>
+                    ) : null}
+                  </div>
+                )}
+                <div className="h-6 w-6 flex items-center justify-center text-zinc-400">
+                  {isExpanded ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </div>
+              </div>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="text-xs">
+            <p>{isExpanded ? "Collapse" : "Expand"} scratchpad</p>
+            <p className="text-zinc-500">Ctrl+Shift+N</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Expandable content */}
+        <AnimatePresence initial={false}>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              <div className="px-4 pb-4">
+                <textarea
+                  ref={textareaRef}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Quick notes, ideas, reminders for today..."
+                  className={cn(
+                    "w-full min-h-[120px] max-h-[400px] resize-y",
+                    "bg-zinc-950/50 border border-zinc-800/60 rounded-lg",
+                    "px-3 py-2.5 text-sm text-zinc-200",
+                    "placeholder:text-zinc-600",
+                    "focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50",
+                    "transition-all duration-200",
+                    "font-mono leading-relaxed"
+                  )}
+                />
+                {/* Character count */}
+                <div className="flex items-center justify-end mt-2 text-xs text-zinc-600">
+                  <span>{notes.length} characters</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </TooltipProvider>
   );
 }

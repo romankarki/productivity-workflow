@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { DayHeader } from "@/components/tasks/day-header";
@@ -36,7 +36,20 @@ export default function DayPage({ params }: DayPageProps) {
   const reorderTask = useReorderTask(date);
 
   // Scratchpad preferences
-  const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded } = useScratchpadPreferences();
+  const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded, toggleExpanded: toggleScratchpad } = useScratchpadPreferences();
+
+  // Keyboard shortcut for scratchpad (Ctrl+Shift+N)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "N") {
+        e.preventDefault();
+        toggleScratchpad();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleScratchpad]);
 
   // Get filter from URL
   const labelFilters = searchParams.get("labels")?.split(",").filter(Boolean) || [];
