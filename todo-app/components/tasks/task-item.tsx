@@ -109,31 +109,35 @@ export function TaskItem({
   return (
     <div
       className={cn(
-        "group relative flex flex-col gap-2 rounded-lg border border-transparent bg-muted/30 px-3 py-3 transition-all duration-200",
+        "group relative flex flex-col gap-2 rounded-lg border border-transparent bg-muted/30 px-3 py-3 sm:px-3 transition-all duration-200",
         "hover:border-border/60 hover:bg-muted/50",
+        "active:bg-muted/60 touch-manipulation",
         task.completed && "opacity-60",
         isDragging && "border-primary/50 bg-card shadow-lg",
         isRunning && "border-primary/30 bg-primary/5"
       )}
     >
       {/* Main Row */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Drag Handle */}
         <div
           {...dragHandleProps}
           className={cn(
             "cursor-grab touch-none text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100",
+            "p-1 -m-1", // Increase touch target
             isDragging && "cursor-grabbing opacity-100"
           )}
         >
           <GripVertical className="h-4 w-4" />
         </div>
 
-        {/* Checkbox */}
-        <TaskCheckbox
-          checked={task.completed}
-          onChange={handleToggleComplete}
-        />
+        {/* Checkbox - larger touch target on mobile */}
+        <div className="p-1 -m-1">
+          <TaskCheckbox
+            checked={task.completed}
+            onChange={handleToggleComplete}
+          />
+        </div>
 
         {/* Title / Edit Input */}
         <div className="flex-1 min-w-0">
@@ -151,7 +155,7 @@ export function TaskItem({
               type="button"
               onClick={() => setIsEditing(true)}
               className={cn(
-                "w-full text-left text-sm transition-colors",
+                "w-full text-left text-sm transition-colors py-1",
                 task.completed
                   ? "text-muted-foreground line-through"
                   : "text-foreground"
@@ -162,8 +166,39 @@ export function TaskItem({
           )}
         </div>
 
-        {/* Stopwatch */}
+        {/* Stopwatch - visible only on larger screens in row, moved to below on small */}
         {!task.completed && (
+          <div className="hidden sm:block">
+            <MiniStopwatch
+              elapsedTime={elapsedTime}
+              isRunning={isRunning}
+              isPaused={isPaused}
+              isStopped={isStopped}
+              isLoading={isLoading}
+              onToggle={handleStopwatchToggle}
+              onClick={handleOpenStopwatch}
+            />
+          </div>
+        )}
+
+        {/* Delete Button - larger touch target */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onDelete}
+          className={cn(
+            "h-8 w-8 sm:h-7 sm:w-7 shrink-0 text-muted-foreground transition-all hover:text-destructive",
+            "opacity-100 sm:opacity-0 sm:group-hover:opacity-100",
+            isDragging && "opacity-0"
+          )}
+        >
+          <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+        </Button>
+      </div>
+
+      {/* Mobile: Stopwatch row */}
+      {!task.completed && (isRunning || isPaused || elapsedTime > 0) && (
+        <div className="flex sm:hidden items-center pl-10">
           <MiniStopwatch
             elapsedTime={elapsedTime}
             isRunning={isRunning}
@@ -173,25 +208,12 @@ export function TaskItem({
             onToggle={handleStopwatchToggle}
             onClick={handleOpenStopwatch}
           />
-        )}
-
-        {/* Delete Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onDelete}
-          className={cn(
-            "h-7 w-7 shrink-0 text-muted-foreground opacity-0 transition-all hover:text-destructive group-hover:opacity-100",
-            isDragging && "opacity-0"
-          )}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
-      </div>
+        </div>
+      )}
 
       {/* Labels Row */}
       {(taskLabels.length > 0 || !task.completed) && (
-        <div className="flex items-center gap-2 pl-10">
+        <div className="flex items-center gap-2 pl-10 flex-wrap">
           <LabelList
             labels={taskLabels}
             size="sm"
@@ -207,9 +229,9 @@ export function TaskItem({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 gap-1 px-1.5 text-xs text-muted-foreground hover:text-foreground"
+                className="h-7 sm:h-6 gap-1 px-2 sm:px-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
-                <Tag className="h-3 w-3" />
+                <Tag className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
                 {taskLabels.length === 0 && "Add label"}
               </Button>
             </LabelSelector>
