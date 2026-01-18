@@ -114,7 +114,7 @@ export async function GET(
   }
 }
 
-// PUT /api/tasklists/[id] - Update task list goals
+// PUT /api/tasklists/[id] - Update task list goals and notes
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -128,7 +128,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { weeklyGoal, monthlyGoal } = body;
+    const { weeklyGoal, monthlyGoal, notes } = body;
 
     let taskList;
 
@@ -151,6 +151,7 @@ export async function PUT(
         data: {
           ...(weeklyGoal !== undefined && { weeklyGoal }),
           ...(monthlyGoal !== undefined && { monthlyGoal }),
+          ...(notes !== undefined && { notes }),
         },
       });
     } else {
@@ -162,6 +163,7 @@ export async function PUT(
         data: {
           ...(weeklyGoal !== undefined && { weeklyGoal }),
           ...(monthlyGoal !== undefined && { monthlyGoal }),
+          ...(notes !== undefined && { notes }),
         },
       });
     }
