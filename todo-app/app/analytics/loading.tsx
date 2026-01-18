@@ -1,5 +1,11 @@
 import { MainLayout } from '@/components/layout/main-layout'
 import { Skeleton } from '@/components/ui/skeleton'
+import { 
+  AnalyticsChartSkeleton, 
+  AnalyticsStatsSkeleton, 
+  AnalyticsPieSkeleton, 
+  AnalyticsInsightsSkeleton 
+} from '@/components/analytics/analytics-skeleton'
 
 export default function AnalyticsLoading() {
   return (
@@ -18,40 +24,26 @@ export default function AnalyticsLoading() {
             <Skeleton className="h-10 w-[160px]" />
           </div>
           
-          {/* Charts Skeleton */}
+          {/* Content Skeleton */}
           <div className="grid gap-6">
-            {/* Weekly Time Chart */}
+            {/* Chart */}
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <Skeleton className="h-6 w-32 mb-4" />
-              <Skeleton className="h-[300px] w-full rounded-lg" />
+              <Skeleton className="h-6 w-48 mb-4" />
+              <AnalyticsChartSkeleton />
             </div>
             
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
-                >
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-8 w-20" />
-                </div>
-              ))}
-            </div>
+            {/* Stats */}
+            <AnalyticsStatsSkeleton />
             
             {/* Bottom Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <Skeleton className="h-6 w-28 mb-4" />
-                <Skeleton className="h-[280px] w-full rounded-lg" />
+                <AnalyticsPieSkeleton />
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <Skeleton className="h-6 w-32 mb-4" />
-                <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="h-16 w-full rounded-lg" />
-                  ))}
-                </div>
+                <AnalyticsInsightsSkeleton />
               </div>
             </div>
           </div>
