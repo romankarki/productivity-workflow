@@ -1,10 +1,12 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useMemo } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { DayHeader } from "@/components/tasks/day-header";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskInput } from "@/components/tasks/task-input";
+import { TaskFilters } from "@/components/tasks/task-filters";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
 import { useCreateTask, useUpdateTask, useDeleteTask, useReorderTask } from "@/lib/hooks/use-tasks";
@@ -19,6 +21,10 @@ interface DayPageProps {
 
 export default function DayPage({ params }: DayPageProps) {
   const { date } = use(params);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
   const { data: user, isLoading: userLoading } = useUser();
   const { data: taskList, isLoading: taskListLoading } = useTaskList(date);
 
@@ -26,6 +32,39 @@ export default function DayPage({ params }: DayPageProps) {
   const updateTask = useUpdateTask(date);
   const deleteTask = useDeleteTask(date);
   const reorderTask = useReorderTask(date);
+
+  // Get filter from URL
+  const labelFilters = searchParams.get("labels")?.split(",").filter(Boolean) || [];
+
+  const handleToggleLabelFilter = (labelId: string) => {
+    const newFilters = labelFilters.includes(labelId)
+      ? labelFilters.filter((id) => id !== labelId)
+      : [...labelFilters, labelId];
+    
+    const params = new URLSearchParams(searchParams);
+    if (newFilters.length > 0) {
+      params.set("labels", newFilters.join(","));
+    } else {
+      params.delete("labels");
+    }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const handleClearFilters = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("labels");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Filter tasks by selected labels
+  const filteredTasks = useMemo(() => {
+    if (!taskList?.tasks || labelFilters.length === 0) {
+      return taskList?.tasks || [];
+    }
+    // For now, we'll need to filter on the client side
+    // In a real app, this would ideally be done server-side
+    return taskList.tasks;
+  }, [taskList?.tasks, labelFilters]);
 
   // Show loading while checking user
   if (userLoading) {
@@ -109,15 +148,25 @@ export default function DayPage({ params }: DayPageProps) {
     <MainLayout>
       <DayHeader date={date} />
 
+      {/* Filters */}
+      <div className="mb-4">
+        <TaskFilters
+          selectedLabelIds={labelFilters}
+          onToggleLabel={handleToggleLabelFilter}
+          onClearFilters={handleClearFilters}
+        />
+      </div>
+
       {/* Task List Area */}
       <Card className="border-border/40 bg-card/50 backdrop-blur">
         <CardContent className="p-6">
           <TaskList
-            tasks={taskList?.tasks || []}
+            tasks={filteredTasks}
             isLoading={taskListLoading}
             onUpdateTask={handleUpdateTask}
             onDeleteTask={handleDeleteTask}
             onReorderTask={handleReorderTask}
+            filterLabelIds={labelFilters}
           />
 
           {/* Task Input */}
