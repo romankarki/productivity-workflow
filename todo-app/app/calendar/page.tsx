@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { CalendarHeader } from "@/components/calendar/calendar-header";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
+import { CalendarLegend } from "@/components/calendar/calendar-legend";
 import { StreakBadge } from "@/components/calendar/streak-badge";
 import { DayPreviewSheet } from "@/components/calendar/day-preview-sheet";
 import { GoalDialog } from "@/components/goals/goal-dialog";
@@ -177,6 +178,11 @@ export default function CalendarPage() {
               onDayClick={handleDayClick}
             />
           )}
+          
+          {/* Legend */}
+          <div className="mt-6 border-t border-border/40 pt-4">
+            <CalendarLegend />
+          </div>
         </CardContent>
       </Card>
 
