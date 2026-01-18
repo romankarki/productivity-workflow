@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Task } from "@/lib/types/task";
 import { TaskCheckbox } from "./task-checkbox";
@@ -22,7 +22,7 @@ interface TaskItemProps {
   isDragging?: boolean;
 }
 
-export function TaskItem({
+export const TaskItem = memo(function TaskItem({
   task,
   onUpdate,
   onDelete,
@@ -240,4 +240,4 @@ export function TaskItem({
       )}
     </div>
   );
-}
+})

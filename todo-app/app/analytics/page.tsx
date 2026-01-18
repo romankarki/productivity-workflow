@@ -1,13 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { MainLayout } from '@/components/layout/main-layout'
 import { AnalyticsHeader } from '@/components/analytics/analytics-header'
-import { WeeklyChart } from '@/components/analytics/weekly-chart'
 import { StatsGrid } from '@/components/analytics/stats-grid'
-import { LabelPieChart } from '@/components/analytics/label-pie-chart'
-import { LabelInsights } from '@/components/analytics/label-insights'
-import { ContributionGraph } from '@/components/analytics/contribution-graph'
 import { EmptyAnalytics } from '@/components/analytics/empty-analytics'
 import { 
   AnalyticsChartSkeleton, 
@@ -18,6 +15,27 @@ import { DateRangeOption } from '@/lib/types/analytics'
 import { useAnalytics, useContributions } from '@/lib/hooks/use-analytics'
 import { useUser } from '@/lib/hooks/use-user'
 import { Skeleton } from '@/components/ui/skeleton'
+
+// Dynamic imports for heavy chart components
+const WeeklyChart = dynamic(
+  () => import('@/components/analytics/weekly-chart').then(mod => ({ default: mod.WeeklyChart })),
+  { loading: () => <AnalyticsChartSkeleton />, ssr: false }
+)
+
+const LabelPieChart = dynamic(
+  () => import('@/components/analytics/label-pie-chart').then(mod => ({ default: mod.LabelPieChart })),
+  { loading: () => <AnalyticsPieSkeleton />, ssr: false }
+)
+
+const LabelInsights = dynamic(
+  () => import('@/components/analytics/label-insights').then(mod => ({ default: mod.LabelInsights })),
+  { loading: () => <AnalyticsInsightsSkeleton />, ssr: false }
+)
+
+const ContributionGraph = dynamic(
+  () => import('@/components/analytics/contribution-graph').then(mod => ({ default: mod.ContributionGraph })),
+  { loading: () => <Skeleton className="h-[150px] w-full rounded-lg" />, ssr: false }
+)
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRangeOption>('this-week')
