@@ -3,10 +3,14 @@
 import { useState } from 'react'
 import { MainLayout } from '@/components/layout/main-layout'
 import { AnalyticsHeader } from '@/components/analytics/analytics-header'
+import { WeeklyChart } from '@/components/analytics/weekly-chart'
 import { DateRangeOption } from '@/lib/types/analytics'
+import { useAnalytics } from '@/lib/hooks/use-analytics'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRangeOption>('this-week')
+  const { timeData, isLoading, isWeekly } = useAnalytics(dateRange)
 
   return (
     <MainLayout>
@@ -17,15 +21,21 @@ export default function AnalyticsPage() {
             onDateRangeChange={setDateRange} 
           />
           
-          {/* Charts will be added in subsequent commits */}
           <div className="grid gap-6">
-            {/* Weekly Time Chart - Full Width */}
+            {/* Weekly/Monthly Time Chart - Full Width */}
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-              <h2 className="text-lg font-semibold text-zinc-100 mb-4">Time Tracked</h2>
-              <div className="h-[300px] flex items-center justify-center text-zinc-500">
-                {/* WeeklyChart component will be added here */}
-                <p>Chart loading...</p>
-              </div>
+              <h2 className="text-lg font-semibold text-zinc-100 mb-4">
+                {isWeekly ? 'Time Tracked This Week' : 'Time Tracked This Month'}
+              </h2>
+              {isLoading ? (
+                <Skeleton className="h-[300px] w-full rounded-lg" />
+              ) : timeData?.days ? (
+                <WeeklyChart days={timeData.days} isWeekly={isWeekly} />
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-zinc-500">
+                  <p>No data available</p>
+                </div>
+              )}
             </div>
             
             {/* Stats Cards Row */}
