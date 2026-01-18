@@ -52,6 +52,12 @@ export async function POST(
     const lastLap = stopwatch.laps[0];
     const startTime = lastLap ? lastLap.endTime : stopwatch.startTime;
     const duration = now.getTime() - startTime.getTime();
+    
+    // Calculate lap number
+    const lapCount = await prisma.stopwatchLap.count({
+      where: { stopwatchId },
+    });
+    const lapNumber = lapCount + 1;
 
     // Verify label belongs to user if provided
     if (labelId) {
@@ -78,6 +84,7 @@ export async function POST(
         startTime,
         endTime: now,
         duration,
+        lapNumber,
       },
       include: {
         label: true,

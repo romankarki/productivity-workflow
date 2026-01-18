@@ -10,7 +10,7 @@ interface ChartTooltipProps {
     color: string
     dataKey: string
   }>
-  label?: string
+  label?: string | number
 }
 
 export function ChartTooltip({ active, payload, label }: ChartTooltipProps) {

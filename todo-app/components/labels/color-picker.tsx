@@ -45,8 +45,9 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
             )}
             style={{ 
               backgroundColor: color,
-              ringColor: color,
-            }}
+              // Use CSS custom property for ring color
+              ['--tw-ring-color' as string]: color,
+            } as React.CSSProperties}
           >
             {value === color && (
               <Check className="h-4 w-4 text-white drop-shadow" strokeWidth={3} />

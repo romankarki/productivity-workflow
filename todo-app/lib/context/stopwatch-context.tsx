@@ -59,7 +59,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
 
       return () => clearInterval(interval);
     } else {
-      setElapsedTime(calculateElapsedTime(activeStopwatch));
+      setElapsedTime(calculateElapsedTime(activeStopwatch ?? null));
     }
   }, [activeStopwatch, calculateElapsedTime]);
 
@@ -77,7 +77,7 @@ export function StopwatchProvider({ children }: { children: ReactNode }) {
   return (
     <StopwatchContext.Provider
       value={{
-        activeStopwatch,
+        activeStopwatch: activeStopwatch ?? null,
         elapsedTime,
         isLoading,
         openModal,
