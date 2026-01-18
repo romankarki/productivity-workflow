@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { CalendarHeader } from "@/components/calendar/calendar-header";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { StreakBadge } from "@/components/calendar/streak-badge";
+import { DayPreviewSheet } from "@/components/calendar/day-preview-sheet";
 import { GoalDialog } from "@/components/goals/goal-dialog";
 import { useUser } from "@/lib/hooks/use-user";
 import { useCalendarData } from "@/lib/hooks/use-calendar-data";
@@ -19,13 +20,107 @@ export default function CalendarPage() {
   const router = useRouter();
   const { data: user, isLoading: userLoading } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+  const [previewDate, setPreviewDate] = useState<Date | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   const { data: calendarData, isLoading: calendarLoading } = useCalendarData(
     currentDate.getMonth() + 1,
     currentDate.getFullYear()
   );
-  
+
   const { data: streakData } = useStreak();
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handlePrevMonth = useCallback(() => {
+    setCurrentDate((prev) => getPrevMonth(prev));
+  }, []);
+
+  const handleNextMonth = useCallback(() => {
+    setCurrentDate((prev) => getNextMonth(prev));
+  }, []);
+
+  const handleToday = useCallback(() => {
+    setCurrentDate(new Date());
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      switch (e.key) {
+        case "ArrowLeft":
+          handlePrevMonth();
+          break;
+        case "ArrowRight":
+          handleNextMonth();
+          break;
+        case "t":
+        case "T":
+          handleToday();
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handlePrevMonth, handleNextMonth, handleToday]);
+
+  // Touch swipe handling
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+
+      // Swipe threshold
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          handleNextMonth();
+        } else {
+          handlePrevMonth();
+        }
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [handlePrevMonth, handleNextMonth]);
+
+  const handleDayClick = (date: Date) => {
+    if (isMobile) {
+      // On mobile, show preview sheet first
+      setPreviewDate(date);
+      setPreviewOpen(true);
+    } else {
+      // On desktop, navigate directly
+      router.push(`/day/${formatDate(date)}`);
+    }
+  };
 
   // Loading state
   if (userLoading) {
@@ -47,22 +142,6 @@ export default function CalendarPage() {
     return <UsernameDialog open={true} />;
   }
 
-  const handlePrevMonth = () => {
-    setCurrentDate(getPrevMonth(currentDate));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(getNextMonth(currentDate));
-  };
-
-  const handleToday = () => {
-    setCurrentDate(new Date());
-  };
-
-  const handleDayClick = (date: Date) => {
-    router.push(`/day/${formatDate(date)}`);
-  };
-
   return (
     <MainLayout>
       {/* Header with Streak and Goals */}
@@ -82,7 +161,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <Card className="border-border/40 bg-card/50 backdrop-blur">
+      <Card className="border-border/40 bg-card/50 backdrop-blur transition-all duration-300">
         <CardContent className="p-4 sm:p-6">
           {calendarLoading ? (
             <div className="grid grid-cols-7 gap-1">
@@ -100,6 +179,22 @@ export default function CalendarPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Mobile Keyboard Hint */}
+      <div className="mt-4 hidden text-center text-xs text-muted-foreground md:block">
+        <kbd className="rounded bg-muted px-1.5 py-0.5 text-xs">←</kbd>{" "}
+        <kbd className="rounded bg-muted px-1.5 py-0.5 text-xs">→</kbd> to
+        navigate months •{" "}
+        <kbd className="rounded bg-muted px-1.5 py-0.5 text-xs">T</kbd> for
+        today
+      </div>
+
+      {/* Mobile Day Preview Sheet */}
+      <DayPreviewSheet
+        date={previewDate}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </MainLayout>
   );
 }

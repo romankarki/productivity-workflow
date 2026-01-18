@@ -38,6 +38,8 @@ export function CalendarDay({
       className={cn(
         "group relative flex aspect-square flex-col items-center justify-center rounded-lg border border-transparent p-1 transition-all duration-200",
         "hover:border-border/60 hover:bg-muted/50",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+        "active:scale-95 md:active:scale-100",
         !isCurrentMonth && "opacity-30",
         isTodayDate && "border-primary/50 bg-primary/5",
         isStreakDay && "bg-gradient-to-br from-orange-500/10 to-rose-500/10"

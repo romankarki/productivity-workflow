@@ -79,11 +79,14 @@ async function updateTaskList(
 }
 
 // Hook to get task list for a specific date
-export function useTaskList(date: string) {
+export function useTaskList(
+  date: string,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["taskList", date],
     queryFn: () => fetchTaskList(date),
-    enabled: !!date,
+    enabled: !!date && (options?.enabled ?? true),
   });
 }
 
