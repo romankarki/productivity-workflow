@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { CalendarHeader } from "@/components/calendar/calendar-header";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
+import { StreakBadge } from "@/components/calendar/streak-badge";
 import { useUser } from "@/lib/hooks/use-user";
 import { useCalendarData } from "@/lib/hooks/use-calendar-data";
+import { useStreak } from "@/lib/hooks/use-streak";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +23,8 @@ export default function CalendarPage() {
     currentDate.getMonth() + 1,
     currentDate.getFullYear()
   );
+  
+  const { data: streakData } = useStreak();
 
   // Loading state
   if (userLoading) {
@@ -60,13 +64,19 @@ export default function CalendarPage() {
 
   return (
     <MainLayout>
-      <CalendarHeader
-        currentDate={currentDate}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-        onToday={handleToday}
-        streak={0}
-      />
+      {/* Header with Streak */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <CalendarHeader
+          currentDate={currentDate}
+          onPrevMonth={handlePrevMonth}
+          onNextMonth={handleNextMonth}
+          onToday={handleToday}
+        />
+        <StreakBadge
+          currentStreak={streakData?.currentStreak || 0}
+          longestStreak={streakData?.longestStreak || 0}
+        />
+      </div>
 
       <Card className="border-border/40 bg-card/50 backdrop-blur">
         <CardContent className="p-4 sm:p-6">
@@ -80,6 +90,7 @@ export default function CalendarPage() {
             <CalendarGrid
               currentDate={currentDate}
               taskData={calendarData?.taskData}
+              streakDates={streakData?.streakDates}
               onDayClick={handleDayClick}
             />
           )}
