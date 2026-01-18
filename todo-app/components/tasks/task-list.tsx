@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   DndContext,
   closestCenter,
@@ -18,7 +19,8 @@ import { Task } from "@/lib/types/task";
 import { TaskItem } from "./task-item";
 import { SortableTaskItem } from "./sortable-task-item";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, FilterX } from "lucide-react";
+import { useTaskLabels } from "@/lib/hooks/use-labels";
 
 interface TaskListProps {
   tasks: Task[];
@@ -26,6 +28,25 @@ interface TaskListProps {
   onUpdateTask: (id: string, data: { title?: string; completed?: boolean }) => void;
   onDeleteTask: (id: string) => void;
   onReorderTask?: (id: string, newOrder: number) => void;
+  filterLabelIds?: string[];
+}
+
+// Component to check if task has any of the filter labels
+function TaskWithLabelFilter({ 
+  task, 
+  filterLabelIds, 
+  children 
+}: { 
+  task: Task; 
+  filterLabelIds: string[]; 
+  children: (show: boolean) => React.ReactNode;
+}) {
+  const { data: labels = [] } = useTaskLabels(task.id);
+  
+  const show = filterLabelIds.length === 0 || 
+    labels.some(label => filterLabelIds.includes(label.id));
+  
+  return <>{children(show)}</>;
 }
 
 export function TaskList({
@@ -34,6 +55,7 @@ export function TaskList({
   onUpdateTask,
   onDeleteTask,
   onReorderTask,
+  filterLabelIds = [],
 }: TaskListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -90,6 +112,8 @@ export function TaskList({
     }
   };
 
+  const hasFilters = filterLabelIds.length > 0;
+
   return (
     <div className="space-y-2">
       {/* Incomplete Tasks - Sortable */}
@@ -104,12 +128,19 @@ export function TaskList({
         >
           <div className="space-y-2">
             {incompleteTasks.map((task) => (
-              <SortableTaskItem
-                key={task.id}
-                task={task}
-                onUpdate={(data) => onUpdateTask(task.id, data)}
-                onDelete={() => onDeleteTask(task.id)}
-              />
+              <TaskWithLabelFilter 
+                key={task.id} 
+                task={task} 
+                filterLabelIds={filterLabelIds}
+              >
+                {(show) => show ? (
+                  <SortableTaskItem
+                    task={task}
+                    onUpdate={(data) => onUpdateTask(task.id, data)}
+                    onDelete={() => onDeleteTask(task.id)}
+                  />
+                ) : null}
+              </TaskWithLabelFilter>
             ))}
           </div>
         </SortableContext>
@@ -127,14 +158,34 @@ export function TaskList({
           </div>
           <div className="space-y-2">
             {completedTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onUpdate={(data) => onUpdateTask(task.id, data)}
-                onDelete={() => onDeleteTask(task.id)}
-              />
+              <TaskWithLabelFilter 
+                key={task.id} 
+                task={task} 
+                filterLabelIds={filterLabelIds}
+              >
+                {(show) => show ? (
+                  <TaskItem
+                    task={task}
+                    onUpdate={(data) => onUpdateTask(task.id, data)}
+                    onDelete={() => onDeleteTask(task.id)}
+                  />
+                ) : null}
+              </TaskWithLabelFilter>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Empty filter state */}
+      {hasFilters && incompleteTasks.length === 0 && completedTasks.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="mb-4 rounded-full bg-muted/50 p-4">
+            <FilterX className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-medium">No matching tasks</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            No tasks match the selected filters
+          </p>
         </div>
       )}
     </div>
