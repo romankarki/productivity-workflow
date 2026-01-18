@@ -13,6 +13,7 @@ import {
   Flame,
 } from "lucide-react";
 import { useUser } from "@/lib/hooks/use-user";
+import { useStreak } from "@/lib/hooks/use-streak";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -25,6 +26,7 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: user } = useUser();
+  const { data: streakData } = useStreak();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/40 bg-card/50 backdrop-blur-xl">
@@ -51,8 +53,8 @@ export function Sidebar() {
             <div className="flex flex-col">
               <span className="text-sm font-medium">{user.username}</span>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Flame className="h-3 w-3 text-orange-500" />
-                <span>0 day streak</span>
+                <Flame className={cn("h-3 w-3", (streakData?.currentStreak || 0) > 0 ? "text-orange-500" : "text-muted-foreground/50")} />
+                <span>{streakData?.currentStreak || 0} day streak</span>
               </div>
             </div>
           </div>

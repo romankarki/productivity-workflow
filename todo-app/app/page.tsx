@@ -7,6 +7,8 @@ import { QuickStats } from "@/components/dashboard/quick-stats";
 import { TodaySummary } from "@/components/dashboard/today-summary";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
+import { useStreak } from "@/lib/hooks/use-streak";
+import { useGoals } from "@/lib/hooks/use-goals";
 import { useCreateTask, useUpdateTask, useDeleteTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +21,8 @@ export default function Home() {
   const { data: user, isLoading: userLoading } = useUser();
   const today = format(new Date(), "yyyy-MM-dd");
   const { data: taskList, isLoading: taskListLoading } = useTaskList(today);
+  const { data: streakData } = useStreak();
+  const { data: goalsData } = useGoals(today);
 
   const createTask = useCreateTask(today);
   const updateTask = useUpdateTask(today);
@@ -119,10 +123,10 @@ export default function Home() {
 
         {/* Quick Stats */}
         <QuickStats
-          streak={0}
+          streak={streakData?.currentStreak || 0}
           todayCompleted={completedToday}
           todayTotal={totalToday}
-          weekCompleted={completedToday}
+          weekCompleted={goalsData?.weekly.completed || 0}
           timeTracked="0h 0m"
         />
 
