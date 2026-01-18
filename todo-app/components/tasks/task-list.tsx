@@ -1,7 +1,22 @@
 "use client";
 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Task } from "@/lib/types/task";
 import { TaskItem } from "./task-item";
+import { SortableTaskItem } from "./sortable-task-item";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClipboardList } from "lucide-react";
 
@@ -10,6 +25,7 @@ interface TaskListProps {
   isLoading: boolean;
   onUpdateTask: (id: string, data: { title?: string; completed?: boolean }) => void;
   onDeleteTask: (id: string) => void;
+  onReorderTask?: (id: string, newOrder: number) => void;
 }
 
 export function TaskList({
@@ -17,7 +33,19 @@ export function TaskList({
   isLoading,
   onUpdateTask,
   onDeleteTask,
+  onReorderTask,
 }: TaskListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -49,19 +77,45 @@ export function TaskList({
   const incompleteTasks = sortedTasks.filter((t) => !t.completed);
   const completedTasks = sortedTasks.filter((t) => t.completed);
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id && onReorderTask) {
+      const oldIndex = incompleteTasks.findIndex((t) => t.id === active.id);
+      const newIndex = incompleteTasks.findIndex((t) => t.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        onReorderTask(active.id as string, newIndex);
+      }
+    }
+  };
+
   return (
     <div className="space-y-2">
-      {/* Incomplete Tasks */}
-      {incompleteTasks.map((task) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          onUpdate={(data) => onUpdateTask(task.id, data)}
-          onDelete={() => onDeleteTask(task.id)}
-        />
-      ))}
+      {/* Incomplete Tasks - Sortable */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={incompleteTasks.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-2">
+            {incompleteTasks.map((task) => (
+              <SortableTaskItem
+                key={task.id}
+                task={task}
+                onUpdate={(data) => onUpdateTask(task.id, data)}
+                onDelete={() => onDeleteTask(task.id)}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
-      {/* Completed Tasks Section */}
+      {/* Completed Tasks Section - Not Sortable */}
       {completedTasks.length > 0 && (
         <div className="mt-6">
           <div className="mb-3 flex items-center gap-2">

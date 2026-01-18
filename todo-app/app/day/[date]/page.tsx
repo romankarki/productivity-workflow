@@ -7,7 +7,7 @@ import { TaskList } from "@/components/tasks/task-list";
 import { TaskInput } from "@/components/tasks/task-input";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
-import { useCreateTask, useUpdateTask, useDeleteTask } from "@/lib/hooks/use-tasks";
+import { useCreateTask, useUpdateTask, useDeleteTask, useReorderTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +25,7 @@ export default function DayPage({ params }: DayPageProps) {
   const createTask = useCreateTask(date);
   const updateTask = useUpdateTask(date);
   const deleteTask = useDeleteTask(date);
+  const reorderTask = useReorderTask(date);
 
   // Show loading while checking user
   if (userLoading) {
@@ -93,6 +94,17 @@ export default function DayPage({ params }: DayPageProps) {
     });
   };
 
+  const handleReorderTask = (id: string, newOrder: number) => {
+    reorderTask.mutate(
+      { id, order: newOrder },
+      {
+        onError: () => {
+          toast.error("Failed to reorder task");
+        },
+      }
+    );
+  };
+
   return (
     <MainLayout>
       <DayHeader date={date} />
@@ -105,6 +117,7 @@ export default function DayPage({ params }: DayPageProps) {
             isLoading={taskListLoading}
             onUpdateTask={handleUpdateTask}
             onDeleteTask={handleDeleteTask}
+            onReorderTask={handleReorderTask}
           />
 
           {/* Task Input */}
