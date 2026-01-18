@@ -28,6 +28,7 @@ model TaskList {
   date        DateTime @db.Date
   weeklyGoal  Int?
   monthlyGoal Int?
+  notes       String?  @db.Text // Scratchpad content for the day
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
