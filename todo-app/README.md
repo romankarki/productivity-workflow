@@ -4,12 +4,15 @@ A productivity application for task management with Pomodoro-style time tracking
 
 ## Features
 
-- 📝 **Task Management** - Daily task lists with Notion-style inline editing
-- ⏱️ **Time Tracking** - Pomodoro-style stopwatch with lap recording
-- 🏷️ **Custom Labels** - Categorize tasks with colored labels
-- 📅 **Calendar View** - Visual calendar with streak tracking
-- 📊 **Analytics** - Weekly/monthly insights and time breakdown
-- 🌙 **Dark Mode** - Beautiful dark theme by default
+- 📝 **Task Management** - Daily task lists with Notion-style inline editing and drag-and-drop reordering
+- ⏱️ **Time Tracking** - Pomodoro-style stopwatch with lap recording and label assignment
+- 🏷️ **Custom Labels** - Categorize tasks with colored labels and filter by label
+- 📅 **Calendar View** - Visual calendar with streak tracking and goal setting
+- 📊 **Analytics Dashboard** - Weekly/monthly insights, time breakdown charts, and GitHub-style contribution graph
+- 🔥 **Streak Tracking** - Track your productivity streaks and stay motivated
+- 🎯 **Goals** - Set weekly and monthly task completion goals
+- 🌙 **Dark Mode** - Beautiful dark theme throughout the app
+- 📱 **Mobile Responsive** - Fully responsive design with mobile navigation
 
 ## Tech Stack
 
@@ -18,7 +21,8 @@ A productivity application for task management with Pomodoro-style time tracking
 - **Styling**: Tailwind CSS + Shadcn UI
 - **State Management**: TanStack Query (React Query)
 - **Database**: PostgreSQL
-- **ORM**: Prisma
+- **ORM**: Prisma 5
+- **Charts**: Recharts
 
 ## Getting Started
 
@@ -26,7 +30,7 @@ A productivity application for task management with Pomodoro-style time tracking
 
 - Node.js 18+
 - PostgreSQL database (local or remote)
-- npm or yarn
+- npm, yarn, or pnpm
 
 ### Installation
 
@@ -36,6 +40,8 @@ A productivity application for task management with Pomodoro-style time tracking
    ```bash
    cd todo-app
    npm install
+   # or
+   pnpm install
    ```
 
 3. **Set up environment variables**
@@ -115,6 +121,8 @@ npx prisma migrate deploy
 
 ```bash
 npm run dev
+# or
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -137,24 +145,51 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ```
 todo-app/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   │   └── user/          # User API endpoints
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Home page
-│   └── globals.css        # Global styles
+├── app/                       # Next.js App Router
+│   ├── api/                   # API routes
+│   │   ├── analytics/         # Analytics endpoints
+│   │   ├── goals/             # Goals endpoints
+│   │   ├── labels/            # Labels CRUD
+│   │   ├── stopwatches/       # Stopwatch endpoints
+│   │   ├── streaks/           # Streak calculation
+│   │   ├── tasklists/         # Task lists CRUD
+│   │   ├── tasks/             # Tasks CRUD
+│   │   └── user/              # User endpoints
+│   ├── analytics/             # Analytics page
+│   ├── calendar/              # Calendar page
+│   ├── day/[date]/            # Daily task list page
+│   ├── labels/                # Labels management page
+│   ├── settings/              # Settings page
+│   ├── error.tsx              # Global error page
+│   ├── not-found.tsx          # 404 page
+│   ├── layout.tsx             # Root layout
+│   ├── page.tsx               # Dashboard home page
+│   └── globals.css            # Global styles
 ├── components/
-│   ├── ui/                # Shadcn UI components
-│   └── onboarding/        # Onboarding components
+│   ├── analytics/             # Analytics charts & stats
+│   ├── calendar/              # Calendar components
+│   ├── dashboard/             # Dashboard components
+│   ├── goals/                 # Goal dialog & progress
+│   ├── labels/                # Label components
+│   ├── layout/                # Layout components (sidebar, nav)
+│   ├── onboarding/            # User onboarding
+│   ├── providers/             # Context providers
+│   ├── settings/              # Settings components
+│   ├── stopwatch/             # Stopwatch components
+│   ├── tasks/                 # Task list & items
+│   └── ui/                    # Shadcn UI components
 ├── lib/
-│   ├── hooks/             # Custom React hooks
-│   ├── providers/         # Context providers
-│   ├── types/             # TypeScript types
-│   ├── prisma.ts          # Prisma client singleton
-│   └── utils.ts           # Utility functions
+│   ├── context/               # React contexts
+│   ├── hooks/                 # Custom React hooks
+│   ├── providers/             # Query provider
+│   ├── types/                 # TypeScript types
+│   ├── utils/                 # Utility functions
+│   ├── prisma.ts              # Prisma client singleton
+│   └── utils.ts               # General utilities
 ├── prisma/
-│   └── schema.prisma      # Database schema
-├── .env.example           # Environment variables template
+│   ├── migrations/            # Database migrations
+│   └── schema.prisma          # Database schema
+├── .env.example               # Environment variables template
 └── package.json
 ```
 
@@ -172,15 +207,29 @@ The app uses the following data models:
 
 ## Development Phases
 
-This project is being built in phases:
+This project was built in phases:
 
-- [x] **Phase 1**: Core Setup (Current)
-- [ ] **Phase 2**: Task Management
-- [ ] **Phase 3**: Calendar & Navigation
-- [ ] **Phase 4**: Time Tracking
-- [ ] **Phase 5**: Labels & Organization
-- [ ] **Phase 6**: Analytics
-- [ ] **Phase 7**: Polish & Optimization
+- [x] **Phase 1**: Core Setup - Project setup, database, user system
+- [x] **Phase 2**: Task Management - CRUD, drag-and-drop, inline editing
+- [x] **Phase 3**: Calendar & Navigation - Calendar view, streaks, goals
+- [x] **Phase 4**: Time Tracking - Stopwatch, laps, persistence
+- [x] **Phase 5**: Labels & Organization - Labels CRUD, task filtering
+- [x] **Phase 6**: Analytics - Charts, stats, contribution graph
+- [x] **Phase 7**: Polish & Optimization - Settings, toasts, performance
+
+## Screenshots
+
+### Dashboard
+The home page shows today's tasks and quick stats.
+
+### Calendar
+View your productivity over time with streak tracking.
+
+### Analytics
+Detailed insights with charts and GitHub-style contribution graph.
+
+### Task Management
+Create, complete, and organize tasks with labels and time tracking.
 
 ## Troubleshooting
 
@@ -211,6 +260,21 @@ taskkill /PID <PID> /F
 # Kill process on port 3000 (Mac/Linux)
 lsof -ti:3000 | xargs kill -9
 ```
+
+### Hydration Errors
+
+If you see hydration errors, make sure:
+1. Server and client render the same initial content
+2. Use `useEffect` with a mounted state for client-only data
+3. Check for date/time formatting differences
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
