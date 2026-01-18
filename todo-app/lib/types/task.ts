@@ -16,6 +16,7 @@ export interface TaskList {
   date: Date;
   weeklyGoal: number | null;
   monthlyGoal: number | null;
+  notes: string | null;
   createdAt: Date;
   updatedAt: Date;
   tasks?: Task[];
@@ -55,4 +56,5 @@ export interface CreateTaskListInput {
 export interface UpdateTaskListInput {
   weeklyGoal?: number;
   monthlyGoal?: number;
+  notes?: string;
 }

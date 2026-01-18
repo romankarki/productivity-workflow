@@ -1,14 +1,16 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { DayHeader } from "@/components/tasks/day-header";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskInput } from "@/components/tasks/task-input";
 import { TaskFilters } from "@/components/tasks/task-filters";
+import { Scratchpad } from "@/components/scratchpad/scratchpad";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
+import { useScratchpadPreferences } from "@/lib/hooks/use-scratchpad-preferences";
 import { useCreateTask, useUpdateTask, useDeleteTask, useReorderTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,6 +34,22 @@ export default function DayPage({ params }: DayPageProps) {
   const updateTask = useUpdateTask(date);
   const deleteTask = useDeleteTask(date);
   const reorderTask = useReorderTask(date);
+
+  // Scratchpad preferences
+  const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded, toggleExpanded: toggleScratchpad } = useScratchpadPreferences();
+
+  // Keyboard shortcut for scratchpad (Ctrl+Shift+N)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "N") {
+        e.preventDefault();
+        toggleScratchpad();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleScratchpad]);
 
   // Get filter from URL
   const labelFilters = searchParams.get("labels")?.split(",").filter(Boolean) || [];
@@ -180,6 +198,19 @@ export default function DayPage({ params }: DayPageProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Scratchpad */}
+      {!taskListLoading && taskList && (
+        <div className="mt-6">
+          <Scratchpad
+            taskListId={taskList.id}
+            date={date}
+            initialNotes={taskList.notes || ""}
+            defaultExpanded={scratchpadExpanded}
+            onToggle={setScratchpadExpanded}
+          />
+        </div>
+      )}
     </MainLayout>
   );
 }

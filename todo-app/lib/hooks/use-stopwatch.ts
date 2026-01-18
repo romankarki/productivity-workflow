@@ -161,7 +161,7 @@ export function useStopwatch(taskId: string): UseStopwatchReturn {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      setElapsedTime(calculateElapsedTime(stopwatch));
+      setElapsedTime(calculateElapsedTime(stopwatch ?? null));
     }
 
     return () => {
@@ -249,7 +249,7 @@ export function useStopwatch(taskId: string): UseStopwatchReturn {
     isStopped,
     elapsedTime,
     laps: stopwatch?.laps || [],
-    stopwatch,
+    stopwatch: stopwatch ?? null,
     start,
     pause,
     resume,

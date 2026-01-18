@@ -12,10 +12,11 @@ import { useGoals } from "@/lib/hooks/use-goals";
 import { useStopwatchContext } from "@/lib/context/stopwatch-context";
 import { useCreateTask, useUpdateTask, useDeleteTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
+import { Scratchpad } from "@/components/scratchpad/scratchpad";
+import { useScratchpadPreferences } from "@/lib/hooks/use-scratchpad-preferences";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, BarChart3, Sparkles } from "lucide-react";
+import { Calendar, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { formatTimeHuman } from "@/components/stopwatch/time-display";
 
@@ -30,6 +31,9 @@ export default function Home() {
   const createTask = useCreateTask(today);
   const updateTask = useUpdateTask(today);
   const deleteTask = useDeleteTask(today);
+
+  // Scratchpad preferences
+  const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded } = useScratchpadPreferences();
 
   // Show loading skeleton while checking user status
   if (userLoading) {
@@ -148,51 +152,42 @@ export default function Home() {
             />
           </div>
 
-          {/* Quick Actions */}
+          {/* Sidebar - Scratchpad & Quick Links */}
           <div className="space-y-4">
-            <Card className="border-border/40 bg-card/50 backdrop-blur">
-              <CardContent className="p-6">
-                <h3 className="mb-4 font-semibold">Quick Actions</h3>
-                <div className="space-y-2">
-                  <Link href="/calendar" className="block">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-3"
-                    >
-                      <Calendar className="h-4 w-4 text-blue-500" />
-                      View Calendar
-                    </Button>
-                  </Link>
-                  <Link href="/analytics" className="block">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-3"
-                    >
-                      <BarChart3 className="h-4 w-4 text-violet-500" />
-                      View Analytics
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Scratchpad */}
+            {!taskListLoading && taskList && (
+              <Scratchpad
+                taskListId={taskList.id}
+                date={today}
+                initialNotes={taskList.notes || ""}
+                defaultExpanded={scratchpadExpanded}
+                onToggle={setScratchpadExpanded}
+              />
+            )}
 
-            {/* Motivational Card */}
-            <Card className="border-border/40 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-full bg-violet-500/20 p-2">
-                    <Sparkles className="h-4 w-4 text-violet-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Pro Tip</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Break large tasks into smaller ones. It&apos;s easier to
-                      stay motivated when you can check things off frequently!
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Quick Links */}
+            <div className="flex gap-2">
+              <Link href="/calendar" className="flex-1">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 border-zinc-800/60 bg-zinc-900/50"
+                  size="sm"
+                >
+                  <Calendar className="h-4 w-4 text-blue-400" />
+                  Calendar
+                </Button>
+              </Link>
+              <Link href="/analytics" className="flex-1">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 border-zinc-800/60 bg-zinc-900/50"
+                  size="sm"
+                >
+                  <BarChart3 className="h-4 w-4 text-violet-400" />
+                  Analytics
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

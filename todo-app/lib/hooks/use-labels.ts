@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUserId } from "./use-user";
 import { Label, CreateLabelInput, UpdateLabelInput } from "@/lib/types/label";
+import { toastActions } from "./use-toast-actions";
 
 async function fetchLabels(): Promise<Label[]> {
   const userId = getUserId();
@@ -89,8 +90,12 @@ export function useCreateLabel() {
 
   return useMutation({
     mutationFn: createLabel,
-    onSuccess: () => {
+    onSuccess: (label) => {
       queryClient.invalidateQueries({ queryKey: ["labels"] });
+      toastActions.labelCreated(label.name);
+    },
+    onError: () => {
+      toastActions.error("Failed to create label");
     },
   });
 }
@@ -101,8 +106,12 @@ export function useUpdateLabel() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateLabelInput }) =>
       updateLabel(id, data),
-    onSuccess: () => {
+    onSuccess: (label) => {
       queryClient.invalidateQueries({ queryKey: ["labels"] });
+      toastActions.labelUpdated(label.name);
+    },
+    onError: () => {
+      toastActions.error("Failed to update label");
     },
   });
 }
@@ -114,6 +123,10 @@ export function useDeleteLabel() {
     mutationFn: deleteLabel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["labels"] });
+      toastActions.success("Label deleted");
+    },
+    onError: () => {
+      toastActions.error("Failed to delete label");
     },
   });
 }
@@ -188,6 +201,10 @@ export function useAddTaskLabel() {
     onSuccess: (_, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: ["taskLabels", taskId] });
       queryClient.invalidateQueries({ queryKey: ["taskList"] });
+      toastActions.labelAdded();
+    },
+    onError: () => {
+      toastActions.error("Failed to add label");
     },
   });
 }
@@ -201,6 +218,10 @@ export function useRemoveTaskLabel() {
     onSuccess: (_, { taskId }) => {
       queryClient.invalidateQueries({ queryKey: ["taskLabels", taskId] });
       queryClient.invalidateQueries({ queryKey: ["taskList"] });
+      toastActions.labelRemoved();
+    },
+    onError: () => {
+      toastActions.error("Failed to remove label");
     },
   });
 }

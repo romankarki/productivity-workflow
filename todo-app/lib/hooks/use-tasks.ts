@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task, CreateTaskInput, UpdateTaskInput, TaskList } from "@/lib/types/task";
 import { getUserId } from "./use-user";
+import { toastActions } from "./use-toast-actions";
 
 // Create a new task
 async function createTask(
@@ -156,6 +157,10 @@ export function useCreateTask(date: string) {
       if (context?.previousTaskList) {
         queryClient.setQueryData(["taskList", date], context.previousTaskList);
       }
+      toastActions.error("Failed to create task");
+    },
+    onSuccess: () => {
+      toastActions.taskCreated();
     },
     onSettled: () => {
       // Refetch after mutation
@@ -194,6 +199,15 @@ export function useUpdateTask(date: string) {
       if (context?.previousTaskList) {
         queryClient.setQueryData(["taskList", date], context.previousTaskList);
       }
+      toastActions.error("Failed to update task");
+    },
+    onSuccess: (task, { data }) => {
+      // Show special toast for completion
+      if (data.completed === true) {
+        toastActions.taskCompleted();
+      } else if (data.completed === false) {
+        toastActions.taskUncompleted();
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["taskList", date] });
@@ -228,6 +242,10 @@ export function useDeleteTask(date: string) {
       if (context?.previousTaskList) {
         queryClient.setQueryData(["taskList", date], context.previousTaskList);
       }
+      toastActions.error("Failed to delete task");
+    },
+    onSuccess: () => {
+      toastActions.taskDeleted();
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["taskList", date] });
