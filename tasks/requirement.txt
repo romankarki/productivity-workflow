@@ -1,0 +1,256 @@
+Pomodoro-Style Todo App - Requirements & Specifications
+Project Overview
+Build a Pomodoro-style todo application that allows users to manage daily tasks, track time spent on each task with custom labels, set weekly/monthly goals, and visualize productivity through analytics and calendar streaks.
+
+Tech Stack
+Framework: Next.js with TypeScript
+Styling: Shadcn UI components + Tailwind CSS
+State Management & Data Fetching: React Query (TanStack Query)
+Database: PostgreSQL (I’ll hook later once the rest of app is ready)
+ORM: Prisma (with full type safety and migrations)
+Theme: Dark mode by default with clean, minimal UI
+
+Core Features
+1. User Onboarding
+Simple username entry on first load (no authentication required)
+Username persists in session/local storage
+Users can change username anytime from settings
+No complex auth flow needed
+2. Task Management
+Daily Task Lists: Create task lists for each day
+Weekly Goals: Set goals for the week (visual progress tracking)
+Monthly Goals: Set goals for the month (visual progress tracking)
+List Creation (Notion-style):
+Inline add button at the bottom of each list
+Ability to create tasks without modal/navigation
+Quick add with minimal friction (press Enter to save, can add multiple tasks rapidly)
+Delete/edit inline with minimal clicks
+Drag-and-drop reordering (optional enhancement)
+3. Calendar View
+Interactive Calendar Display:
+Monthly calendar showing all days
+Click any date to view/edit that day's task list
+Visual indicators for days with tasks
+Show task count or visual density on each day
+Streak Tracking:
+Display consecutive days with completed tasks
+Show current streak count prominently
+Highlight streak days with distinct visual style
+Reset and restart on missed days
+4. Time Tracking (Stopwatch)
+Stopwatch Feature Per Task:
+Start/pause/resume/stop timer for each task
+Display elapsed time in HH:MM:SS format
+Visual feedback (color change on active task)
+Lap Feature:
+Ability to log lap times while stopwatch is running
+Each lap represents focus on a specific sub-task or label
+Lap history shows timestamps and durations
+Laps can be assigned to labels (see below)
+5. Custom Labels System
+Label Management:
+Users can create unlimited custom labels (e.g., "Work", "Learning", "Exercise", "Reading")
+Labels stored in database table with user association
+Edit/delete labels with cascading updates to tasks
+Display labels as colored tags/badges
+Task-Label Association:
+Assign one or multiple labels to each task
+Assign labels to stopwatch laps for granular time tracking
+Visual label filtering on task lists
+6. Analytics Dashboard
+Weekly Time Breakdown:
+Graph showing total time spent each day of the past 7 days
+Stacked/segmented bar or area chart showing time by label per day
+Display metrics: total hours, daily average, most productive day
+Show label breakdown as separate colored segments
+Label Insights:
+Pie/donut chart showing total time per label (past week)
+Ranking of labels by time spent
+Trend indicators (up/down from previous week)
+Visual Design:
+Use recharts or similar charting library for clean visuals
+Dark theme compatible charts
+Interactive tooltips with exact time values
+Export/print option (optional)
+7. UI/UX Standards
+Dark Theme: Dark mode as default theme (no light mode toggle required initially)
+Design Principles:
+Minimal, clean aesthetic
+Ample whitespace and clear hierarchy
+Smooth transitions and micro-interactions
+Consistent use of Shadcn components
+Responsive Design:
+Mobile-friendly calendar and task lists
+Touch-friendly buttons and interactive elements
+Optimized for desktop, tablet, and mobile screens
+
+Data Models (Prisma Schema)
+User
+id (Primary Key)
+username (String, unique)
+createdAt (DateTime)
+updatedAt (DateTime)
+TaskList
+id (Primary Key)
+userId (Foreign Key → User)
+date (Date, unique per user)
+weeklyGoal (Integer, optional - target task count)
+monthlyGoal (Integer, optional - target task count)
+createdAt (DateTime)
+updatedAt (DateTime)
+Task
+id (Primary Key)
+taskListId (Foreign Key → TaskList)
+title (String)
+description (String, optional)
+completed (Boolean, default: false)
+order (Integer, for sorting)
+createdAt (DateTime)
+updatedAt (DateTime)
+Label
+id (Primary Key)
+userId (Foreign Key → User)
+name (String)
+color (String, hex code)
+createdAt (DateTime)
+updatedAt (DateTime)
+TaskLabel (Junction Table)
+id (Primary Key)
+taskId (Foreign Key → Task)
+labelId (Foreign Key → Label)
+Stopwatch
+id (Primary Key)
+taskId (Foreign Key → Task)
+startTime (DateTime)
+endTime (DateTime, optional - null if running)
+totalDuration (Integer, in milliseconds)
+isActive (Boolean)
+createdAt (DateTime)
+StopwatchLap
+id (Primary Key)
+stopwatchId (Foreign Key → Stopwatch)
+labelId (Foreign Key → Label, optional)
+startTime (DateTime)
+endTime (DateTime)
+duration (Integer, in milliseconds)
+lapNumber (Integer)
+createdAt (DateTime)
+
+API Endpoints (Next.js API Routes)
+User
+POST /api/user - Set/update username
+GET /api/user - Get current user
+TaskLists
+GET /api/tasklists - Get all task lists for user
+GET /api/tasklists/:date - Get task list for specific date
+POST /api/tasklists - Create task list for date
+PUT /api/tasklists/:id - Update goals
+Tasks
+POST /api/tasklists/:taskListId/tasks - Create task
+PUT /api/tasks/:id - Update task (title, completed status)
+DELETE /api/tasks/:id - Delete task
+PATCH /api/tasks/:id/order - Update task order (for sorting)
+Labels
+GET /api/labels - Get all user labels
+POST /api/labels - Create label
+PUT /api/labels/:id - Update label
+DELETE /api/labels/:id - Delete label
+Stopwatch & Time Tracking
+POST /api/stopwatches - Create stopwatch for task
+PUT /api/stopwatches/:id - Update stopwatch (pause/resume/stop)
+POST /api/stopwatches/:id/laps - Create lap
+GET /api/stopwatches/:taskId - Get stopwatch history for task
+Analytics
+GET /api/analytics/week - Get past 7 days data with label breakdown
+GET /api/analytics/month - Get past 30 days summary
+
+Pages & Layout Structure
+app/
+├── (root)/
+│   ├── page.tsx                 # Dashboard/home with calendar view
+│   ├── calendar/page.tsx        # Full calendar view with navigation
+│   ├── day/[date]/page.tsx      # Daily task list view
+│   ├── analytics/page.tsx       # Weekly/monthly analytics dashboard
+│   ├── labels/page.tsx          # Label management
+│   └── settings/page.tsx        # User settings (username, theme, etc.)
+├── api/
+│   ├── user/
+│   ├── tasklists/
+│   ├── tasks/
+│   ├── labels/
+│   ├── stopwatches/
+│   └── analytics/
+└── layout.tsx
+
+Key Implementation Details
+List Creation (Notion-style)
+Task input field always visible at bottom of list
+Enter key creates task, keeps focus in input field
+Escape clears input without creating
+Real-time validation and instant feedback
+No page reload or modal navigation required
+Calendar & Streaks
+Highlight current streak with distinct visual (e.g., fire icon, bold border)
+Show streak count badge on streak-active dates
+Automatically reset streak on missed days
+Show "current" and "best" streaks
+Time Tracking Experience
+Start/stop button easily accessible on each task
+Display running timer prominently
+Lap button available while timer is running
+Lap modal shows task and label selection dropdown
+All time data persists immediately
+Analytics Display
+Use recharts for charts (dark-theme compatible)
+Show past 7 days by default
+Allow date range selection (optional enhancement)
+Summary stats: total hours, breakdown by label, daily average
+
+Design System & Styling
+Color Scheme: Dark background with accent colors for labels and CTAs
+Typography: Clear hierarchy, readable sans-serif font
+Components: Consistent use of Shadcn button, input, card, badge, dialog components
+Spacing: 8px base unit, generous padding on cards and sections
+Icons: Lucide React icons for consistent iconography
+
+Development Phases
+Phase 1: Core Setup
+Next.js + TypeScript + Shadcn setup
+Prisma schema and database connection
+Basic user onboarding (username)
+Phase 2: Task Management
+Task list CRUD operations
+Daily task view with Notion-style add
+Basic styling with dark theme
+Phase 3: Calendar & Navigation
+Calendar view with date selection
+Streak calculation and display
+Weekly/monthly goals UI
+Phase 4: Time Tracking
+Stopwatch implementation
+Lap feature
+Time persistence
+Phase 5: Labels & Organization
+Label creation and management
+Task-label association
+Label filtering
+Phase 6: Analytics
+Weekly analytics dashboard
+Charts and visualizations
+Time breakdown by label
+Phase 7: Polish & Optimization
+Performance tuning with React Query
+Mobile responsiveness refinement
+Bug fixes and UX improvements
+
+Additional Considerations
+Error Handling: Graceful error messages for failed operations
+Loading States: Skeleton loaders for data fetching
+Offline Support: Consider service workers for offline task viewing (optional)
+Data Validation: Validate all inputs on client and server
+Performance: Use React Query caching strategies to minimize API calls
+Accessibility: Ensure keyboard navigation and screen reader support
+
+P.S.
+Create a readme to do all of this how to run and hookup with a new db in my local postgres 
+
