@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { CalendarHeader } from "@/components/calendar/calendar-header";
+import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { useUser } from "@/lib/hooks/use-user";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,10 +64,10 @@ export default function CalendarPage() {
 
       <Card className="border-border/40 bg-card/50 backdrop-blur">
         <CardContent className="p-4 sm:p-6">
-          {/* Calendar Grid Placeholder */}
-          <div className="text-center py-12 text-muted-foreground">
-            Calendar grid coming next...
-          </div>
+          <CalendarGrid
+            currentDate={currentDate}
+            onDayClick={handleDayClick}
+          />
         </CardContent>
       </Card>
     </MainLayout>
