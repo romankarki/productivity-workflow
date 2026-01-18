@@ -7,6 +7,7 @@ import { WeeklyChart } from '@/components/analytics/weekly-chart'
 import { StatsGrid } from '@/components/analytics/stats-grid'
 import { LabelPieChart } from '@/components/analytics/label-pie-chart'
 import { LabelInsights } from '@/components/analytics/label-insights'
+import { ContributionGraph } from '@/components/analytics/contribution-graph'
 import { EmptyAnalytics } from '@/components/analytics/empty-analytics'
 import { 
   AnalyticsChartSkeleton, 
@@ -14,12 +15,13 @@ import {
   AnalyticsInsightsSkeleton 
 } from '@/components/analytics/analytics-skeleton'
 import { DateRangeOption } from '@/lib/types/analytics'
-import { useAnalytics } from '@/lib/hooks/use-analytics'
+import { useAnalytics, useContributions } from '@/lib/hooks/use-analytics'
 import { useUser } from '@/lib/hooks/use-user'
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRangeOption>('this-week')
   const { timeData, labelData, isLoading, isWeekly } = useAnalytics(dateRange)
+  const { data: contributions, isLoading: contributionsLoading } = useContributions()
   const { data: user } = useUser()
 
   // Check if user has any data at all
@@ -58,6 +60,17 @@ export default function AnalyticsPage() {
             <EmptyAnalytics type="no-time" />
           ) : (
             <div className="grid gap-6 animate-in fade-in-50 duration-500">
+              {/* GitHub-style Contribution Graph */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-zinc-700">
+                <h2 className="text-lg font-semibold text-zinc-100 mb-4">
+                  Activity Overview
+                </h2>
+                <ContributionGraph 
+                  data={contributions || []} 
+                  isLoading={contributionsLoading} 
+                />
+              </div>
+              
               {/* Weekly/Monthly Time Chart - Full Width */}
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-300 hover:border-zinc-700">
                 <h2 className="text-lg font-semibold text-zinc-100 mb-4">

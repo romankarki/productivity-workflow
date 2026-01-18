@@ -78,6 +78,31 @@ async function fetchLabelAnalytics(period: 'week' | 'month'): Promise<LabelAnaly
   return response.json()
 }
 
+// Contribution data type
+export interface ContributionData {
+  date: string
+  taskCount: number
+  completedCount: number
+  totalTime: number
+}
+
+// Fetch yearly contributions
+async function fetchContributions(): Promise<ContributionData[]> {
+  const userId = getUserId()
+  if (!userId) return []
+  
+  const params = new URLSearchParams({ userId })
+  
+  const response = await fetch(`/api/analytics/contributions?${params}`)
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch contributions')
+  }
+  
+  const data = await response.json()
+  return data.contributions
+}
+
 // Hook for weekly analytics
 export function useWeeklyAnalytics(startDate?: string) {
   const userId = getUserId()
@@ -111,6 +136,18 @@ export function useLabelAnalytics(period: 'week' | 'month') {
     queryFn: () => fetchLabelAnalytics(period),
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+// Hook for yearly contributions (GitHub-style graph)
+export function useContributions() {
+  const userId = getUserId()
+  
+  return useQuery({
+    queryKey: ['analytics', 'contributions', userId],
+    queryFn: fetchContributions,
+    enabled: !!userId,
+    staleTime: 10 * 60 * 1000, // 10 minutes - this data doesn't change often
   })
 }
 
