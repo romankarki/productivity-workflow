@@ -4,14 +4,17 @@ import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Task } from "@/lib/types/task";
 import { TaskCheckbox } from "./task-checkbox";
+import { MiniStopwatch } from "@/components/stopwatch/mini-stopwatch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, GripVertical, Clock } from "lucide-react";
+import { Trash2, GripVertical } from "lucide-react";
+import { useStopwatch } from "@/lib/hooks/use-stopwatch";
 
 interface TaskItemProps {
   task: Task;
   onUpdate: (data: { title?: string; completed?: boolean }) => void;
   onDelete: () => void;
+  onOpenStopwatch?: (taskId: string) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   isDragging?: boolean;
 }
@@ -20,12 +23,24 @@ export function TaskItem({
   task,
   onUpdate,
   onDelete,
+  onOpenStopwatch,
   dragHandleProps,
   isDragging = false,
 }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(task.title);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    elapsedTime,
+    isRunning,
+    isPaused,
+    isStopped,
+    isLoading,
+    start,
+    pause,
+    resume,
+  } = useStopwatch(task.id);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -57,13 +72,28 @@ export function TaskItem({
     onUpdate({ completed: checked });
   };
 
+  const handleStopwatchToggle = async () => {
+    if (isRunning) {
+      await pause();
+    } else if (isPaused) {
+      await resume();
+    } else {
+      await start();
+    }
+  };
+
+  const handleOpenStopwatch = () => {
+    onOpenStopwatch?.(task.id);
+  };
+
   return (
     <div
       className={cn(
         "group relative flex items-center gap-3 rounded-lg border border-transparent bg-muted/30 px-3 py-3 transition-all duration-200",
         "hover:border-border/60 hover:bg-muted/50",
         task.completed && "opacity-60",
-        isDragging && "border-primary/50 bg-card shadow-lg"
+        isDragging && "border-primary/50 bg-card shadow-lg",
+        isRunning && "border-primary/30 bg-primary/5"
       )}
     >
       {/* Drag Handle */}
@@ -110,12 +140,18 @@ export function TaskItem({
         )}
       </div>
 
-      {/* Time Tracked Indicator (placeholder) */}
-      {/* This will show actual time when stopwatch is implemented */}
-      <div className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
-        <Clock className="h-3 w-3" />
-        <span>0m</span>
-      </div>
+      {/* Stopwatch */}
+      {!task.completed && (
+        <MiniStopwatch
+          elapsedTime={elapsedTime}
+          isRunning={isRunning}
+          isPaused={isPaused}
+          isStopped={isStopped}
+          isLoading={isLoading}
+          onToggle={handleStopwatchToggle}
+          onClick={handleOpenStopwatch}
+        />
+      )}
 
       {/* Delete Button */}
       <Button
