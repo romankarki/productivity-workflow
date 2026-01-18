@@ -52,7 +52,7 @@ export function Scratchpad({
     const textarea = textareaRef.current;
     if (textarea && isExpanded) {
       textarea.style.height = "auto";
-      textarea.style.height = `${Math.max(120, textarea.scrollHeight)}px`;
+      textarea.style.height = `${Math.max(220, textarea.scrollHeight)}px`;
     }
   }, [notes, isExpanded]);
 
@@ -163,13 +163,21 @@ export function Scratchpad({
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={`Quick notes for today...\n\n• Meeting notes\n• Ideas to explore\n• Things to remember`}
                   className={cn(
-                    "w-full min-h-[120px] max-h-[400px] resize-y",
+                    "w-full min-h-[220px] max-h-[500px] resize-y",
                     "bg-zinc-950/50 border border-zinc-800/60 rounded-lg",
                     "px-3 py-2.5 text-sm text-zinc-200",
                     "placeholder:text-zinc-600",
                     "focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50",
                     "transition-all duration-200",
-                    "font-mono leading-relaxed"
+                    "font-mono leading-relaxed",
+                    // Custom thin scrollbar
+                    "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-700/50",
+                    "hover:scrollbar-thumb-zinc-600/70",
+                    "[&::-webkit-scrollbar]:w-1.5",
+                    "[&::-webkit-scrollbar-track]:bg-transparent",
+                    "[&::-webkit-scrollbar-thumb]:bg-zinc-700/50",
+                    "[&::-webkit-scrollbar-thumb]:rounded-full",
+                    "[&::-webkit-scrollbar-thumb:hover]:bg-zinc-600/70"
                   )}
                 />
                 {/* Stats footer */}
