@@ -6,6 +6,7 @@ import { AnalyticsHeader } from '@/components/analytics/analytics-header'
 import { WeeklyChart } from '@/components/analytics/weekly-chart'
 import { StatsGrid } from '@/components/analytics/stats-grid'
 import { LabelPieChart } from '@/components/analytics/label-pie-chart'
+import { LabelInsights } from '@/components/analytics/label-insights'
 import { DateRangeOption } from '@/lib/types/analytics'
 import { useAnalytics } from '@/lib/hooks/use-analytics'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -54,10 +55,7 @@ export default function AnalyticsPage() {
               {/* Label Insights */}
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
                 <h2 className="text-lg font-semibold text-zinc-100 mb-4">Label Insights</h2>
-                <div className="h-[280px] flex items-center justify-center text-zinc-500">
-                  {/* LabelInsights component will be added here */}
-                  <p>Insights loading...</p>
-                </div>
+                <LabelInsights data={labelData} isLoading={isLoading} />
               </div>
             </div>
           </div>
