@@ -6,6 +6,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { CalendarHeader } from "@/components/calendar/calendar-header";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { StreakBadge } from "@/components/calendar/streak-badge";
+import { GoalDialog } from "@/components/goals/goal-dialog";
 import { useUser } from "@/lib/hooks/use-user";
 import { useCalendarData } from "@/lib/hooks/use-calendar-data";
 import { useStreak } from "@/lib/hooks/use-streak";
@@ -64,7 +65,7 @@ export default function CalendarPage() {
 
   return (
     <MainLayout>
-      {/* Header with Streak */}
+      {/* Header with Streak and Goals */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <CalendarHeader
           currentDate={currentDate}
@@ -72,10 +73,13 @@ export default function CalendarPage() {
           onNextMonth={handleNextMonth}
           onToday={handleToday}
         />
-        <StreakBadge
-          currentStreak={streakData?.currentStreak || 0}
-          longestStreak={streakData?.longestStreak || 0}
-        />
+        <div className="flex items-center gap-3">
+          <StreakBadge
+            currentStreak={streakData?.currentStreak || 0}
+            longestStreak={streakData?.longestStreak || 0}
+          />
+          <GoalDialog date={currentDate} />
+        </div>
       </div>
 
       <Card className="border-border/40 bg-card/50 backdrop-blur">
