@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-// POST /api/tasklists/[taskListId]/tasks - Create new task
+// POST /api/tasklists/[id]/tasks - Create new task
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ taskListId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = request.headers.get("x-user-id");
@@ -13,7 +13,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { taskListId } = await params;
+    const { id: taskListId } = await params;
     const body = await request.json();
     const { title, description } = body;
 
