@@ -12,6 +12,8 @@ import { useGoals } from "@/lib/hooks/use-goals";
 import { useStopwatchContext } from "@/lib/context/stopwatch-context";
 import { useCreateTask, useUpdateTask, useDeleteTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
+import { Scratchpad } from "@/components/scratchpad/scratchpad";
+import { useScratchpadPreferences } from "@/lib/hooks/use-scratchpad-preferences";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +32,9 @@ export default function Home() {
   const createTask = useCreateTask(today);
   const updateTask = useUpdateTask(today);
   const deleteTask = useDeleteTask(today);
+
+  // Scratchpad preferences
+  const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded } = useScratchpadPreferences();
 
   // Show loading skeleton while checking user status
   if (userLoading) {
@@ -195,6 +200,17 @@ export default function Home() {
             </Card>
           </div>
         </div>
+
+        {/* Scratchpad */}
+        {!taskListLoading && taskList && (
+          <Scratchpad
+            taskListId={taskList.id}
+            date={today}
+            initialNotes={taskList.notes || ""}
+            defaultExpanded={scratchpadExpanded}
+            onToggle={setScratchpadExpanded}
+          />
+        )}
       </div>
     </MainLayout>
   );
