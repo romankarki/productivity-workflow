@@ -7,8 +7,10 @@ import { DayHeader } from "@/components/tasks/day-header";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskInput } from "@/components/tasks/task-input";
 import { TaskFilters } from "@/components/tasks/task-filters";
+import { Scratchpad } from "@/components/scratchpad/scratchpad";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
+import { useScratchpadPreferences } from "@/lib/hooks/use-scratchpad-preferences";
 import { useCreateTask, useUpdateTask, useDeleteTask, useReorderTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,6 +34,9 @@ export default function DayPage({ params }: DayPageProps) {
   const updateTask = useUpdateTask(date);
   const deleteTask = useDeleteTask(date);
   const reorderTask = useReorderTask(date);
+
+  // Scratchpad preferences
+  const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded } = useScratchpadPreferences();
 
   // Get filter from URL
   const labelFilters = searchParams.get("labels")?.split(",").filter(Boolean) || [];
@@ -180,6 +185,19 @@ export default function DayPage({ params }: DayPageProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Scratchpad */}
+      {!taskListLoading && taskList && (
+        <div className="mt-6">
+          <Scratchpad
+            taskListId={taskList.id}
+            date={date}
+            initialNotes={taskList.notes || ""}
+            defaultExpanded={scratchpadExpanded}
+            onToggle={setScratchpadExpanded}
+          />
+        </div>
+      )}
     </MainLayout>
   );
 }
