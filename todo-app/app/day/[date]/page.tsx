@@ -175,42 +175,47 @@ export default function DayPage({ params }: DayPageProps) {
         />
       </div>
 
-      {/* Task List Area */}
-      <Card className="border-border/40 bg-card/50 backdrop-blur">
-        <CardContent className="p-6">
-          <TaskList
-            tasks={filteredTasks}
-            isLoading={taskListLoading}
-            onUpdateTask={handleUpdateTask}
-            onDeleteTask={handleDeleteTask}
-            onReorderTask={handleReorderTask}
-            filterLabelIds={labelFilters}
-          />
-
-          {/* Task Input */}
-          {!taskListLoading && taskList && (
-            <div className="mt-4 border-t border-border/40 pt-4">
-              <TaskInput
-                onSubmit={handleCreateTask}
-                isLoading={createTask.isPending}
+      {/* Main Content Grid - Tasks & Scratchpad side by side */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Task List Area - Takes 2 columns on large screens */}
+        <div className="lg:col-span-2">
+          <Card className="border-border/40 bg-card/50 backdrop-blur h-full">
+            <CardContent className="p-6">
+              <TaskList
+                tasks={filteredTasks}
+                isLoading={taskListLoading}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+                onReorderTask={handleReorderTask}
+                filterLabelIds={labelFilters}
               />
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Scratchpad */}
-      {!taskListLoading && taskList && (
-        <div className="mt-6">
-          <Scratchpad
-            taskListId={taskList.id}
-            date={date}
-            initialNotes={taskList.notes || ""}
-            defaultExpanded={scratchpadExpanded}
-            onToggle={setScratchpadExpanded}
-          />
+              {/* Task Input */}
+              {!taskListLoading && taskList && (
+                <div className="mt-4 border-t border-border/40 pt-4">
+                  <TaskInput
+                    onSubmit={handleCreateTask}
+                    isLoading={createTask.isPending}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      )}
+
+        {/* Scratchpad - Takes 1 column on large screens */}
+        {!taskListLoading && taskList && (
+          <div className="lg:col-span-1">
+            <Scratchpad
+              taskListId={taskList.id}
+              date={date}
+              initialNotes={taskList.notes || ""}
+              defaultExpanded={scratchpadExpanded}
+              onToggle={setScratchpadExpanded}
+            />
+          </div>
+        )}
+      </div>
     </MainLayout>
   );
 }
