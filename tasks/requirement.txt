@@ -254,3 +254,4 @@ Accessibility: Ensure keyboard navigation and screen reader support
 P.S.
 Create a readme to do all of this how to run and hookup with a new db in my local postgres 
 
+all phases done now next phase can be prepared once limit usuage resets 
