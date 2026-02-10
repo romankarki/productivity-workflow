@@ -84,21 +84,102 @@ A productivity application for task management with Pomodoro-style time tracking
 
 3. **Update your `.env`** with the connection string
 
-#### Option 2: Docker
+#### Option 2: Docker (Recommended)
+
+Docker is the easiest way to get PostgreSQL running without installing it directly on your machine. The steps below use a **named volume** so your data persists across container restarts and removals.
+
+##### Step 1: Create a Docker volume
+
+A named volume ensures your database files survive even if you delete and recreate the container.
+
+```bash
+docker volume create pomodoro-pgdata
+```
+
+You can verify the volume was created:
+
+```bash
+docker volume ls
+# Should show: local   pomodoro-pgdata
+```
+
+##### Step 2: Run the PostgreSQL container
 
 ```bash
 docker run --name pomodoro-postgres \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=pomodoro_todo \
+  -v pomodoro-pgdata:/var/lib/postgresql/data \
   -p 5432:5432 \
   -d postgres:15
 ```
 
-Then set your `.env`:
+Flag breakdown:
+| Flag | Purpose |
+|------|---------|
+| `--name pomodoro-postgres` | Names the container for easy reference |
+| `-e POSTGRES_USER=postgres` | Sets the database superuser username |
+| `-e POSTGRES_PASSWORD=postgres` | Sets the superuser password |
+| `-e POSTGRES_DB=pomodoro_todo` | Creates this database on first run |
+| `-v pomodoro-pgdata:/var/lib/postgresql/data` | Mounts the named volume for persistent storage |
+| `-p 5432:5432` | Maps container port 5432 to host port 5432 |
+| `-d postgres:15` | Runs PostgreSQL 15 in detached (background) mode |
+
+##### Step 3: Set your `.env`
+
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pomodoro_todo?schema=public"
 ```
+
+##### Managing the Docker container
+
+```bash
+# Check if the container is running
+docker ps
+
+# Stop the container (data is preserved in volume)
+docker stop pomodoro-postgres
+
+# Start it again later
+docker start pomodoro-postgres
+
+# View container logs
+docker logs pomodoro-postgres
+
+# Connect to the database via psql inside the container
+docker exec -it pomodoro-postgres psql -U postgres -d pomodoro_todo
+
+# Remove the container (volume and data are preserved)
+docker rm -f pomodoro-postgres
+
+# Recreate the container using the same volume (data intact)
+docker run --name pomodoro-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=pomodoro_todo \
+  -v pomodoro-pgdata:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  -d postgres:15
+```
+
+##### Volume management
+
+```bash
+# Inspect volume details (see mount point, size, etc.)
+docker volume inspect pomodoro-pgdata
+
+# Back up the database to a SQL file
+docker exec pomodoro-postgres pg_dump -U postgres pomodoro_todo > backup.sql
+
+# Restore from a backup
+docker exec -i pomodoro-postgres psql -U postgres pomodoro_todo < backup.sql
+
+# Delete the volume (WARNING: permanently deletes all database data)
+docker volume rm pomodoro-pgdata
+```
+
+> **Note:** As long as you use the same volume name (`pomodoro-pgdata`), your data will persist even if you delete and recreate the container. Only `docker volume rm` will delete the actual data.
 
 ### Running Migrations
 
@@ -235,10 +316,44 @@ Create, complete, and organize tasks with labels and time tracking.
 
 ### Database Connection Issues
 
-1. Ensure PostgreSQL is running
-2. Verify your DATABASE_URL is correct
+1. Ensure PostgreSQL is running (`docker ps` if using Docker)
+2. Verify your `DATABASE_URL` is correct in `.env`
 3. Check that the database exists
-4. Try connecting with psql to test credentials
+4. Try connecting with psql to test credentials:
+   ```bash
+   # Direct connection
+   psql -U postgres -h localhost -d pomodoro_todo
+   
+   # Or via Docker
+   docker exec -it pomodoro-postgres psql -U postgres -d pomodoro_todo
+   ```
+
+### Docker Issues
+
+```bash
+# Container won't start? Check if port 5432 is already in use
+docker logs pomodoro-postgres
+
+# Port conflict - stop other PostgreSQL instances
+# Windows
+netstat -ano | findstr :5432
+
+# Mac/Linux
+lsof -ti:5432
+
+# Verify volume exists
+docker volume ls | grep pomodoro
+
+# Full reset (recreate container, keep data)
+docker rm -f pomodoro-postgres
+docker run --name pomodoro-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=pomodoro_todo \
+  -v pomodoro-pgdata:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  -d postgres:15
+```
 
 ### Prisma Issues
 
