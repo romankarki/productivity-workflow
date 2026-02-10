@@ -25,27 +25,27 @@ import { useTaskLabels } from "@/lib/hooks/use-labels";
 interface TaskListProps {
   tasks: Task[];
   isLoading: boolean;
-  onUpdateTask: (id: string, data: { title?: string; completed?: boolean }) => void;
+  onUpdateTask: (id: string, data: { title?: string; completed?: boolean; duration?: number }) => void;
   onDeleteTask: (id: string) => void;
   onReorderTask?: (id: string, newOrder: number) => void;
   filterLabelIds?: string[];
 }
 
 // Component to check if task has any of the filter labels
-function TaskWithLabelFilter({ 
-  task, 
-  filterLabelIds, 
-  children 
-}: { 
-  task: Task; 
-  filterLabelIds: string[]; 
+function TaskWithLabelFilter({
+  task,
+  filterLabelIds,
+  children
+}: {
+  task: Task;
+  filterLabelIds: string[];
   children: (show: boolean) => React.ReactNode;
 }) {
   const { data: labels = [] } = useTaskLabels(task.id);
-  
-  const show = filterLabelIds.length === 0 || 
+
+  const show = filterLabelIds.length === 0 ||
     labels.some(label => filterLabelIds.includes(label.id));
-  
+
   return <>{children(show)}</>;
 }
 
@@ -128,9 +128,9 @@ export function TaskList({
         >
           <div className="space-y-2">
             {incompleteTasks.map((task) => (
-              <TaskWithLabelFilter 
-                key={task.id} 
-                task={task} 
+              <TaskWithLabelFilter
+                key={task.id}
+                task={task}
                 filterLabelIds={filterLabelIds}
               >
                 {(show) => show ? (
@@ -158,9 +158,9 @@ export function TaskList({
           </div>
           <div className="space-y-2">
             {completedTasks.map((task) => (
-              <TaskWithLabelFilter 
-                key={task.id} 
-                task={task} 
+              <TaskWithLabelFilter
+                key={task.id}
+                task={task}
                 filterLabelIds={filterLabelIds}
               >
                 {(show) => show ? (

@@ -13,9 +13,11 @@ import { Trash2, GripVertical, Tag } from "lucide-react";
 import { useStopwatch } from "@/lib/hooks/use-stopwatch";
 import { useTaskLabels, useAddTaskLabel, useRemoveTaskLabel } from "@/lib/hooks/use-labels";
 
+import { formatTimeHuman } from "@/components/stopwatch/time-display";
+
 interface TaskItemProps {
   task: Task;
-  onUpdate: (data: { title?: string; completed?: boolean }) => void;
+  onUpdate: (data: { title?: string; completed?: boolean; duration?: number }) => void;
   onDelete: () => void;
   onOpenStopwatch?: (taskId: string) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
@@ -33,6 +35,11 @@ export const TaskItem = memo(function TaskItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(task.title);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Duration editing state
+  const [isEditingDuration, setIsEditingDuration] = useState(false);
+  const [durationValue, setDurationValue] = useState("");
+  const durationInputRef = useRef<HTMLInputElement>(null);
 
   const {
     elapsedTime,
@@ -56,6 +63,13 @@ export const TaskItem = memo(function TaskItem({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    if (isEditingDuration && durationInputRef.current) {
+      durationInputRef.current.focus();
+      durationInputRef.current.select();
+    }
+  }, [isEditingDuration]);
+
   const handleSave = () => {
     const trimmed = editValue.trim();
     if (trimmed && trimmed !== task.title) {
@@ -66,12 +80,30 @@ export const TaskItem = memo(function TaskItem({
     setIsEditing(false);
   };
 
+  const handleSaveDuration = () => {
+    const trimmed = durationValue.trim();
+    // Simple parsing: try to parse as minutes
+    const minutes = parseInt(trimmed);
+    if (!isNaN(minutes)) {
+      onUpdate({ duration: minutes * 60 * 1000 });
+    }
+    setIsEditingDuration(false);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSave();
     } else if (e.key === "Escape") {
       setEditValue(task.title);
       setIsEditing(false);
+    }
+  };
+
+  const handleDurationKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSaveDuration();
+    } else if (e.key === "Escape") {
+      setIsEditingDuration(false);
     }
   };
 
@@ -104,6 +136,13 @@ export const TaskItem = memo(function TaskItem({
 
   const handleRemoveLabel = async (labelId: string) => {
     await removeLabel.mutateAsync({ taskId: task.id, labelId });
+  };
+
+  const startEditingDuration = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const minutes = Math.floor((task.duration || 0) / 60000);
+    setDurationValue(minutes.toString());
+    setIsEditingDuration(true);
   };
 
   return (
@@ -166,6 +205,34 @@ export const TaskItem = memo(function TaskItem({
           )}
         </div>
 
+        {/* Duration Display (Completed) */}
+        {task.completed && (
+          <div className="text-xs text-muted-foreground font-mono">
+            {isEditingDuration ? (
+              <div className="flex items-center gap-1">
+                <Input
+                  ref={durationInputRef}
+                  value={durationValue}
+                  onChange={(e) => setDurationValue(e.target.value)}
+                  onBlur={handleSaveDuration}
+                  onKeyDown={handleDurationKeyDown}
+                  className="h-6 w-16 px-1 py-0 text-xs text-right"
+                  placeholder="min"
+                />
+                <span>m</span>
+              </div>
+            ) : (
+              <button
+                onClick={startEditingDuration}
+                className="hover:text-foreground hover:bg-muted px-1.5 py-0.5 rounded transition-colors"
+                title="Click to edit duration (minutes)"
+              >
+                {formatTimeHuman(task.duration || 0)}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Stopwatch - visible only on larger screens in row, moved to below on small */}
         {!task.completed && (
           <div className="hidden sm:block">
@@ -220,7 +287,7 @@ export const TaskItem = memo(function TaskItem({
             max={3}
             onRemove={!task.completed ? handleRemoveLabel : undefined}
           />
-          
+
           {!task.completed && (
             <LabelSelector
               selectedLabels={taskLabels}

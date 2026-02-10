@@ -152,23 +152,45 @@ export async function PUT(
         break;
     }
 
-    const stopwatch = await prisma.stopwatch.update({
-      where: { id },
-      data: updateData,
-      include: {
-        laps: {
-          include: {
-            label: true,
+    const stopwatch = await prisma.$transaction(async (tx) => {
+      const updatedStopwatch = await tx.stopwatch.update({
+        where: { id },
+        data: updateData,
+        include: {
+          laps: {
+            include: {
+              label: true,
+            },
+            orderBy: { createdAt: "desc" },
           },
-          orderBy: { createdAt: "desc" },
-        },
-        task: {
-          select: {
-            id: true,
-            title: true,
+          task: {
+            select: {
+              id: true,
+              title: true,
+            },
           },
         },
-      },
+      });
+
+      // Recalculate total duration for the task
+      if (action === 'pause' || action === 'stop') {
+        const allStopwatches = await tx.stopwatch.findMany({
+          where: { taskId: updatedStopwatch.taskId },
+          select: { totalDuration: true },
+        });
+
+        const totalTaskDuration = allStopwatches.reduce(
+          (acc, sw) => acc + sw.totalDuration,
+          0
+        );
+
+        await tx.task.update({
+          where: { id: updatedStopwatch.taskId },
+          data: { duration: totalTaskDuration },
+        });
+      }
+
+      return updatedStopwatch;
     });
 
     return NextResponse.json({ stopwatch });

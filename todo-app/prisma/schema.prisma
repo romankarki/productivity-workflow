@@ -54,6 +54,7 @@ model Task {
   taskList    TaskList    @relation(fields: [taskListId], references: [id], onDelete: Cascade)
   labels      TaskLabel[]
   stopwatches Stopwatch[]
+  duration    Int         @default(0) // milliseconds
 
   @@index([taskListId])
 }

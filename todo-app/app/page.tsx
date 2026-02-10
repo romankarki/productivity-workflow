@@ -77,7 +77,7 @@ export default function Home() {
 
   const handleUpdateTask = (
     id: string,
-    data: { title?: string; completed?: boolean }
+    data: { title?: string; completed?: boolean; duration?: number }
   ) => {
     updateTask.mutate(
       { id, data },

@@ -14,7 +14,7 @@ interface TodaySummaryProps {
   taskListId: string | null;
   isLoading: boolean;
   onCreateTask: (title: string) => Promise<void>;
-  onUpdateTask: (id: string, data: { title?: string; completed?: boolean }) => void;
+  onUpdateTask: (id: string, data: { title?: string; completed?: boolean; duration?: number }) => void;
   onDeleteTask: (id: string) => void;
   isCreating: boolean;
 }

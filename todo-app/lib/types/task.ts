@@ -8,6 +8,7 @@ export interface Task {
   createdAt: Date;
   updatedAt: Date;
   labels?: TaskLabel[];
+  duration: number;
 }
 
 export interface TaskList {
@@ -45,6 +46,7 @@ export interface UpdateTaskInput {
   title?: string;
   description?: string;
   completed?: boolean;
+  duration?: number;
 }
 
 export interface CreateTaskListInput {

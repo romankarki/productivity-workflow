@@ -79,6 +79,7 @@ export async function PUT(
           description: description?.trim() || null,
         }),
         ...(completed !== undefined && { completed }),
+        ...(body.duration !== undefined && { duration: body.duration }),
       },
       include: {
         labels: {

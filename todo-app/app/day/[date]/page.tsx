@@ -26,7 +26,7 @@ export default function DayPage({ params }: DayPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const { data: user, isLoading: userLoading } = useUser();
   const { data: taskList, isLoading: taskListLoading } = useTaskList(date);
 
@@ -58,7 +58,7 @@ export default function DayPage({ params }: DayPageProps) {
     const newFilters = labelFilters.includes(labelId)
       ? labelFilters.filter((id) => id !== labelId)
       : [...labelFilters, labelId];
-    
+
     const params = new URLSearchParams(searchParams);
     if (newFilters.length > 0) {
       params.set("labels", newFilters.join(","));
@@ -123,7 +123,7 @@ export default function DayPage({ params }: DayPageProps) {
 
   const handleUpdateTask = (
     id: string,
-    data: { title?: string; completed?: boolean }
+    data: { title?: string; completed?: boolean; duration?: number }
   ) => {
     updateTask.mutate(
       { id, data },
