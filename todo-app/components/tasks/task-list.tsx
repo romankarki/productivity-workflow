@@ -115,52 +115,71 @@ export function TaskList({
   const hasFilters = filterLabelIds.length > 0;
 
   return (
-    <div className="space-y-2">
-      {/* Incomplete Tasks - Sortable */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={incompleteTasks.map((t) => t.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-2">
-            {incompleteTasks.map((task) => (
-              <TaskWithLabelFilter 
-                key={task.id} 
-                task={task} 
-                filterLabelIds={filterLabelIds}
-              >
-                {(show) => show ? (
-                  <SortableTaskItem
-                    task={task}
-                    onUpdate={(data) => onUpdateTask(task.id, data)}
-                    onDelete={() => onDeleteTask(task.id)}
-                  />
-                ) : null}
-              </TaskWithLabelFilter>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-
-      {/* Completed Tasks Section - Not Sortable */}
-      {completedTasks.length > 0 && (
-        <div className="mt-6">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="h-px flex-1 bg-border/60" />
-            <span className="text-xs font-medium text-muted-foreground">
-              Completed ({completedTasks.length})
+    <div className="space-y-5">
+      {/* Incomplete Tasks - Sortable, wrapped in a visual group container */}
+      {incompleteTasks.length > 0 && (
+        <div className="rounded-xl border border-border/30 bg-linear-to-b from-muted/20 to-muted/5 p-3 shadow-sm backdrop-blur-sm">
+          {/* Section header for pending tasks */}
+          <div className="mb-3 flex items-center gap-2 px-1">
+            <div className="h-1.5 w-1.5 rounded-full bg-yellow-500/80" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              In Progress
             </span>
-            <div className="h-px flex-1 bg-border/60" />
+            <span className="text-xs text-muted-foreground/60">
+              ({incompleteTasks.length})
+            </span>
           </div>
-          <div className="space-y-2">
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={incompleteTasks.map((t) => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-1.5">
+                {incompleteTasks.map((task) => (
+                  <TaskWithLabelFilter
+                    key={task.id}
+                    task={task}
+                    filterLabelIds={filterLabelIds}
+                  >
+                    {(show) => show ? (
+                      <SortableTaskItem
+                        task={task}
+                        onUpdate={(data) => onUpdateTask(task.id, data)}
+                        onDelete={() => onDeleteTask(task.id)}
+                      />
+                    ) : null}
+                  </TaskWithLabelFilter>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
+      )}
+
+      {/* Completed Tasks - wrapped in a distinct visual group */}
+      {completedTasks.length > 0 && (
+        <div className="rounded-xl border border-border/20 bg-linear-to-b from-emerald-500/3 to-transparent p-3 shadow-sm">
+          {/* Section header for completed tasks */}
+          <div className="mb-3 flex items-center gap-2 px-1">
+            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/80" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Completed
+            </span>
+            <span className="text-xs text-muted-foreground/60">
+              ({completedTasks.length})
+            </span>
+          </div>
+
+          <div className="space-y-1.5">
             {completedTasks.map((task) => (
-              <TaskWithLabelFilter 
-                key={task.id} 
-                task={task} 
+              <TaskWithLabelFilter
+                key={task.id}
+                task={task}
                 filterLabelIds={filterLabelIds}
               >
                 {(show) => show ? (
