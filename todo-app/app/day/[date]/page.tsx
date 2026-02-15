@@ -6,7 +6,7 @@ import { MainLayout } from "@/components/layout/main-layout";
 import { DayHeader } from "@/components/tasks/day-header";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskInput } from "@/components/tasks/task-input";
-import { TaskFilters } from "@/components/tasks/task-filters";
+import { TaskFilters, type GroupByMode } from "@/components/tasks/task-filters";
 import { Scratchpad } from "@/components/scratchpad/scratchpad";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
@@ -51,8 +51,9 @@ export default function DayPage({ params }: DayPageProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleScratchpad]);
 
-  // Get filter from URL
+  // Get filter & groupBy preference from URL
   const labelFilters = searchParams.get("labels")?.split(",").filter(Boolean) || [];
+  const groupBy = (searchParams.get("groupBy") as GroupByMode) || "status";
 
   const handleToggleLabelFilter = (labelId: string) => {
     const newFilters = labelFilters.includes(labelId)
@@ -71,6 +72,17 @@ export default function DayPage({ params }: DayPageProps) {
   const handleClearFilters = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("labels");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Persist groupBy choice in the URL so it survives refreshes
+  const handleGroupByChange = (mode: GroupByMode) => {
+    const params = new URLSearchParams(searchParams);
+    if (mode === "status") {
+      params.delete("groupBy"); // status is the default
+    } else {
+      params.set("groupBy", mode);
+    }
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
@@ -166,12 +178,14 @@ export default function DayPage({ params }: DayPageProps) {
     <MainLayout>
       <DayHeader date={date} />
 
-      {/* Filters */}
+      {/* Filters & group-by toggle */}
       <div className="mb-4">
         <TaskFilters
           selectedLabelIds={labelFilters}
           onToggleLabel={handleToggleLabelFilter}
           onClearFilters={handleClearFilters}
+          groupBy={groupBy}
+          onGroupByChange={handleGroupByChange}
         />
       </div>
 
@@ -188,6 +202,7 @@ export default function DayPage({ params }: DayPageProps) {
                 onDeleteTask={handleDeleteTask}
                 onReorderTask={handleReorderTask}
                 filterLabelIds={labelFilters}
+                groupBy={groupBy}
               />
 
               {/* Task Input */}

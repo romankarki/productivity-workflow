@@ -109,12 +109,17 @@ export const TaskItem = memo(function TaskItem({
   return (
     <div
       className={cn(
-        "group relative flex flex-col gap-2 rounded-lg border border-transparent bg-muted/30 px-3 py-3 sm:px-3 transition-all duration-200",
-        "hover:border-border/60 hover:bg-muted/50",
+        // Base card with subtle elevated feel
+        "group relative flex flex-col gap-2 rounded-lg border border-border/20 bg-card/60 px-3 py-3 sm:px-3 transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.08)]",
+        // Hover: gentle lift with border highlight
+        "hover:border-border/50 hover:bg-card/80 hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)]",
         "active:bg-muted/60 touch-manipulation",
-        task.completed && "opacity-60",
-        isDragging && "border-primary/50 bg-card shadow-lg",
-        isRunning && "border-primary/30 bg-primary/5"
+        // Completed tasks: dimmed with softer border
+        task.completed && "opacity-50 shadow-none border-border/10 bg-muted/20",
+        // Dragging: prominent elevation
+        isDragging && "border-primary/50 bg-card shadow-lg scale-[1.01]",
+        // Active stopwatch: subtle primary glow
+        isRunning && "border-primary/30 bg-primary/5 shadow-[0_0_12px_rgba(var(--primary),0.06)]"
       )}
     >
       {/* Main Row */}
