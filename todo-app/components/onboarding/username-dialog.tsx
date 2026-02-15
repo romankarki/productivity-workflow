@@ -54,7 +54,7 @@ export function UsernameDialog({ open }: UsernameDialogProps) {
       >
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
-            Welcome to Pomodoro Todo
+            Welcome to Workflow Todo
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
             Enter a username to get started. You can change it later in

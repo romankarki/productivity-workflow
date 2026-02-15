@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pomodoro Todo",
+  title: "Workflow Todo",
   description: "A productivity app for task management with time tracking",
 };
 
