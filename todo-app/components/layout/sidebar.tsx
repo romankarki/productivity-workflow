@@ -15,7 +15,7 @@ import {
 import { useUser } from "@/lib/hooks/use-user";
 import { useStreak } from "@/lib/hooks/use-streak";
 import { useStopwatchContext } from "@/lib/context/stopwatch-context";
-import { formatTimeHuman } from "@/components/stopwatch/time-display";
+import { formatTime } from "@/components/stopwatch/time-display";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -35,11 +35,11 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/40 bg-card/50 backdrop-blur-xl">
       {/* Logo & Brand */}
       <div className="flex h-16 items-center gap-3 border-b border-border/40 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 shadow-lg shadow-orange-500/20">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-orange-500 to-rose-500 shadow-lg shadow-orange-500/20">
           <Timer className="h-5 w-5 text-white" />
         </div>
         <div className="flex flex-col">
-          <span className="font-semibold tracking-tight">Pomodoro</span>
+          <span className="font-semibold tracking-tight">Workflow</span>
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
             Todo
           </span>
@@ -50,7 +50,7 @@ export function Sidebar() {
       {user && (
         <div className="border-b border-border/40 px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-sm font-medium text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-purple-600 text-sm font-medium text-white">
               {user.username.charAt(0).toUpperCase()}
             </div>
             <div className="flex flex-col">
@@ -97,39 +97,39 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Bottom Section */}
+      {/* Bottom Section -- iPhone-style clocked timer */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-border/40 p-4">
-        <div className={cn(
-          "rounded-lg p-4 transition-all",
-          activeStopwatch?.isActive
-            ? "bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-primary/20"
-            : "bg-gradient-to-br from-violet-500/10 to-purple-500/10"
-        )}>
-          <p className="text-xs font-medium text-muted-foreground">
-            {activeStopwatch?.isActive ? "Currently Tracking" : "Today's Focus"}
+        <div
+          className={cn(
+            "rounded-xl p-4 transition-all",
+            activeStopwatch?.isActive
+              ? "bg-linear-to-br from-primary/15 to-primary/5 ring-1 ring-primary/30"
+              : "bg-linear-to-br from-zinc-800/60 to-zinc-900/60"
+          )}
+        >
+          {/* Label */}
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Clocked
           </p>
-          <p className={cn(
-            "mt-1 text-2xl font-bold tabular-nums",
-            activeStopwatch?.isActive && "text-primary"
-          )}>
-            {activeStopwatch?.isActive ? formatTimeHuman(elapsedTime) : "0h 0m"}
+
+          {/* Large monospace timer -- the hero element */}
+          <p
+            className={cn(
+              "mt-1 font-mono text-[2rem] font-bold leading-none tabular-nums tracking-tight",
+              activeStopwatch?.isActive ? "text-primary" : "text-foreground"
+            )}
+          >
+            {activeStopwatch?.isActive
+              ? formatTime(elapsedTime)
+              : "00:00"}
           </p>
+
+          {/* Currently tracked task name */}
           {activeStopwatch?.isActive && (
-            <p className="mt-1 text-xs text-muted-foreground truncate">
+            <p className="mt-2 truncate text-xs font-medium text-muted-foreground">
               {activeStopwatch.task.title}
             </p>
           )}
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className={cn(
-                "h-full rounded-full transition-all duration-500",
-                activeStopwatch?.isActive
-                  ? "bg-gradient-to-r from-primary to-primary/70 animate-pulse"
-                  : "bg-gradient-to-r from-violet-500 to-purple-500"
-              )}
-              style={{ width: activeStopwatch?.isActive ? "100%" : "0%" }}
-            />
-          </div>
         </div>
       </div>
     </aside>
