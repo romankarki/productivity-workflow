@@ -57,8 +57,8 @@ export function UsernameDialog({ open }: UsernameDialogProps) {
             Welcome to Workflow Todo
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            Enter a username to get started. You can change it later in
-            settings.
+            Enter a username to get started, or use an existing one to
+            pick up where you left off.
           </DialogDescription>
         </DialogHeader>
 
@@ -88,10 +88,10 @@ export function UsernameDialog({ open }: UsernameDialogProps) {
             {createUser.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                Loading...
               </>
             ) : (
-              "Get Started"
+              "Continue"
             )}
           </Button>
         </form>
