@@ -50,19 +50,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if username already exists
+    // Find existing user or create a new one (acts as login + signup)
     const existingUser = await prisma.user.findUnique({
       where: { username: trimmedUsername },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Username already taken" },
-        { status: 409 }
-      );
+      return NextResponse.json({ user: existingUser }, { status: 200 });
     }
 
-    // Create new user
     const user = await prisma.user.create({
       data: {
         username: trimmedUsername,
