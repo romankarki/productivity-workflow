@@ -326,3 +326,4 @@ nssm remove PomodoroTodo confirm
 | Docker itself | Docker Desktop auto-start on login       | Yes               |
 
 
+
