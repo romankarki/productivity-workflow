@@ -17,8 +17,24 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  taskLists TaskList[]
-  labels    Label[]
+  taskLists    TaskList[]
+  labels       Label[]
+  trackedRepos TrackedRepo[]
+}
+
+// TrackedRepo - GitHub repos the user follows for open-source monitoring
+model TrackedRepo {
+  id        String   @id @default(cuid())
+  userId    String
+  owner     String   // GitHub org or user, e.g. "vercel"
+  name      String   // repo name, e.g. "next.js"
+  notes     String?  @db.Text // personal notes per repo
+  addedAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, owner, name])
+  @@index([userId])
 }
 
 // TaskList - represents a day's task list
