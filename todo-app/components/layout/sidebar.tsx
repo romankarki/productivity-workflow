@@ -11,6 +11,7 @@ import {
   Settings,
   Timer,
   Flame,
+  Github,
 } from "lucide-react";
 import { useUser } from "@/lib/hooks/use-user";
 import { useStreak } from "@/lib/hooks/use-streak";
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/calendar", icon: Calendar, label: "Calendar" },
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/labels", icon: Tags, label: "Labels" },
+  { href: "/opensource", icon: Github, label: "Open Source" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
