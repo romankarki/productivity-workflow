@@ -4,7 +4,7 @@ const GH_HEADERS = {
   Accept: "application/vnd.github.html+json",
 };
 
-// GET /api/repos/[owner]/[repo]/issues/[number] - issue detail + comments
+// GET /api/github/[owner]/[repo]/issues/[number] - issue detail + comments
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ owner: string; repo: string; number: string }> }

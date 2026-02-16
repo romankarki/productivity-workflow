@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // GitHub API headers for public access
 const GH_HEADERS = { Accept: "application/vnd.github+json" };
 
-// GET /api/repos/[owner]/[repo]/issues - list open issues
+// GET /api/github/[owner]/[repo]/issues - list open issues
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ owner: string; repo: string }> }

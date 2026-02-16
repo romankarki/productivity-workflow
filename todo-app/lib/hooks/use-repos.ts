@@ -209,7 +209,7 @@ export function useRepoIssues(owner: string, repo: string) {
   return useQuery({
     queryKey: ["repoIssues", owner, repo],
     queryFn: async (): Promise<RepoIssue[]> => {
-      const res = await fetch(`/api/repos/${owner}/${repo}/issues`);
+      const res = await fetch(`/api/github/${owner}/${repo}/issues`);
       if (!res.ok) throw new Error("Failed to fetch issues");
       const data = await res.json();
       return data.issues;
@@ -223,7 +223,7 @@ export function useIssueDetail(owner: string, repo: string, number: number | nul
   return useQuery({
     queryKey: ["issueDetail", owner, repo, number],
     queryFn: async (): Promise<{ issue: IssueDetail; comments: Comment[] }> => {
-      const res = await fetch(`/api/repos/${owner}/${repo}/issues/${number}`);
+      const res = await fetch(`/api/github/${owner}/${repo}/issues/${number}`);
       if (!res.ok) throw new Error("Failed to fetch issue detail");
       return res.json();
     },
@@ -236,7 +236,7 @@ export function useRepoPRs(owner: string, repo: string) {
   return useQuery({
     queryKey: ["repoPRs", owner, repo],
     queryFn: async (): Promise<RepoPR[]> => {
-      const res = await fetch(`/api/repos/${owner}/${repo}/pulls`);
+      const res = await fetch(`/api/github/${owner}/${repo}/pulls`);
       if (!res.ok) throw new Error("Failed to fetch pull requests");
       const data = await res.json();
       return data.pulls;
@@ -250,7 +250,7 @@ export function usePRDetail(owner: string, repo: string, number: number | null) 
   return useQuery({
     queryKey: ["prDetail", owner, repo, number],
     queryFn: async (): Promise<{ pr: PRDetail; comments: Comment[]; files: PRFile[] }> => {
-      const res = await fetch(`/api/repos/${owner}/${repo}/pulls/${number}`);
+      const res = await fetch(`/api/github/${owner}/${repo}/pulls/${number}`);
       if (!res.ok) throw new Error("Failed to fetch PR detail");
       return res.json();
     },
