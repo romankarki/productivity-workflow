@@ -28,6 +28,7 @@ model TrackedRepo {
   userId    String
   owner     String   // GitHub org or user, e.g. "vercel"
   name      String   // repo name, e.g. "next.js"
+  notes     String?  @db.Text // personal notes per repo
   addedAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
