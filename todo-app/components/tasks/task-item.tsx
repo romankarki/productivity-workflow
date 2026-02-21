@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Task } from "@/lib/types/task";
 import { TaskCheckbox } from "./task-checkbox";
 import { MiniStopwatch } from "@/components/stopwatch/mini-stopwatch";
-import { TimeDisplay } from "@/components/stopwatch/time-display";
+import { formatTime } from "@/components/stopwatch/time-display";
 import { LabelList } from "@/components/labels/label-list";
 import { LabelSelector } from "@/components/labels/label-selector";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,22 @@ import { Input } from "@/components/ui/input";
 import { Trash2, GripVertical, Tag, Pause, Play, Square, Timer } from "lucide-react";
 import { useStopwatch } from "@/lib/hooks/use-stopwatch";
 import { useTaskLabels, useAddTaskLabel, useRemoveTaskLabel } from "@/lib/hooks/use-labels";
+
+function FlipClockTime({ milliseconds }: { milliseconds: number }) {
+  const seconds = Math.floor(milliseconds / 1000);
+  const value = formatTime(milliseconds, false);
+
+  return (
+    <div className="relative h-[1.15em] overflow-hidden leading-none">
+      <span
+        key={seconds}
+        className="block animate-[timer-flip_320ms_cubic-bezier(0.2,0.8,0.2,1)]"
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
 
 interface TaskItemProps {
   task: Task;
@@ -183,17 +199,17 @@ export const TaskItem = memo(function TaskItem({
         {!task.completed && (
           <div className="mt-5 rounded-3xl bg-gradient-to-b from-background/60 to-background/25 p-5 shadow-inner shadow-black/20 ring-1 ring-white/10 sm:p-8">
             <div className="flex justify-center">
-              <TimeDisplay
-                milliseconds={elapsedTime}
-                size="lg"
-                showMillis={isRunning}
+              <div
                 className={cn(
-                  "text-6xl tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] sm:text-7xl md:text-8xl",
+                  "text-6xl tracking-[0.06em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] sm:text-7xl md:text-8xl",
+                  "italic [font-family:var(--font-display),var(--font-geist-mono),ui-monospace,monospace]",
                   isRunning && "text-primary",
                   isPaused && "text-yellow-500",
                   isStopped && "text-muted-foreground"
                 )}
-              />
+              >
+                <FlipClockTime milliseconds={elapsedTime} />
+              </div>
             </div>
 
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
@@ -215,9 +231,9 @@ export const TaskItem = memo(function TaskItem({
                 <Button
                   onClick={handleStopwatchStop}
                   disabled={isLoading}
-                  variant="outline"
+                  variant="destructive"
                   size="lg"
-                  className="gap-2 rounded-full border-white/20 bg-background/35 hover:bg-background/50"
+                  className="gap-2 rounded-full border-none bg-[color-mix(in_oklab,var(--destructive)_82%,black_18%)] text-white hover:bg-[color-mix(in_oklab,var(--destructive)_92%,black_8%)]"
                 >
                   <Square className="h-4 w-4" />
                   Stop

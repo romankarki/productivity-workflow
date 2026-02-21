@@ -194,3 +194,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes timer-flip {
+  0% {
+    transform: translateY(-58%) rotateX(22deg);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateY(0) rotateX(0deg);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
