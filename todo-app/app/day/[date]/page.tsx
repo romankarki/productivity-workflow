@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo, useEffect, useCallback } from "react";
+import { use, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { MainLayout } from "@/components/layout/main-layout";
 import { DayHeader } from "@/components/tasks/day-header";
@@ -12,6 +12,7 @@ import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
 import { useScratchpadPreferences } from "@/lib/hooks/use-scratchpad-preferences";
 import { useCreateTask, useUpdateTask, useDeleteTask, useReorderTask } from "@/lib/hooks/use-tasks";
+import { useStopwatchContext } from "@/lib/context/stopwatch-context";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +30,7 @@ export default function DayPage({ params }: DayPageProps) {
   
   const { data: user, isLoading: userLoading } = useUser();
   const { data: taskList, isLoading: taskListLoading } = useTaskList(date);
+  const { activeStopwatch } = useStopwatchContext();
 
   const createTask = useCreateTask(date);
   const updateTask = useUpdateTask(date);
@@ -86,15 +88,15 @@ export default function DayPage({ params }: DayPageProps) {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Filter tasks by selected labels
-  const filteredTasks = useMemo(() => {
-    if (!taskList?.tasks || labelFilters.length === 0) {
-      return taskList?.tasks || [];
-    }
-    // For now, we'll need to filter on the client side
-    // In a real app, this would ideally be done server-side
-    return taskList.tasks;
-  }, [taskList?.tasks, labelFilters]);
+  const filteredTasks = taskList?.tasks || [];
+
+  const activeTaskId = activeStopwatch?.isActive ? activeStopwatch.taskId : null;
+  const focusTaskId =
+    activeTaskId && taskList?.tasks?.some((task) => task.id === activeTaskId)
+      ? activeTaskId
+      : null;
+
+  const isFocusMode = !!focusTaskId;
 
   // Show loading while checking user
   if (userLoading) {
@@ -179,21 +181,35 @@ export default function DayPage({ params }: DayPageProps) {
       <DayHeader date={date} />
 
       {/* Filters & group-by toggle */}
-      <div className="mb-4">
-        <TaskFilters
-          selectedLabelIds={labelFilters}
-          onToggleLabel={handleToggleLabelFilter}
-          onClearFilters={handleClearFilters}
-          groupBy={groupBy}
-          onGroupByChange={handleGroupByChange}
-        />
-      </div>
+      {!isFocusMode && (
+        <div className="mb-4">
+          <TaskFilters
+            selectedLabelIds={labelFilters}
+            onToggleLabel={handleToggleLabelFilter}
+            onClearFilters={handleClearFilters}
+            groupBy={groupBy}
+            onGroupByChange={handleGroupByChange}
+          />
+        </div>
+      )}
+
+      {isFocusMode && (
+        <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
+            Focus mode is active for this task. Pause or stop the timer to return to the full task list.
+          </div>
+        </div>
+      )}
 
       {/* Main Content Grid - Tasks & Scratchpad side by side */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className={`grid gap-6 transition-all duration-300 ${isFocusMode ? "" : "lg:grid-cols-3"}`}>
         {/* Task List Area - Takes 2 columns on large screens */}
-        <div className="lg:col-span-2">
-          <Card className="border-border/40 bg-card/50 backdrop-blur h-full">
+        <div className={isFocusMode ? "" : "lg:col-span-2"}>
+          <Card
+            className={`h-full border-border/40 backdrop-blur transition-all duration-300 ${
+              isFocusMode ? "border-primary/30 bg-primary/5 shadow-lg" : "bg-card/50"
+            }`}
+          >
             <CardContent className="p-6">
               <TaskList
                 tasks={filteredTasks}
@@ -203,10 +219,11 @@ export default function DayPage({ params }: DayPageProps) {
                 onReorderTask={handleReorderTask}
                 filterLabelIds={labelFilters}
                 groupBy={groupBy}
+                focusTaskId={focusTaskId}
               />
 
               {/* Task Input */}
-              {!taskListLoading && taskList && (
+              {!taskListLoading && taskList && !isFocusMode && (
                 <div className="mt-4 border-t border-border/40 pt-4">
                   <TaskInput
                     onSubmit={handleCreateTask}
@@ -219,7 +236,7 @@ export default function DayPage({ params }: DayPageProps) {
         </div>
 
         {/* Scratchpad - Takes 1 column on large screens */}
-        {!taskListLoading && taskList && (
+        {!taskListLoading && taskList && !isFocusMode && (
           <div className="lg:col-span-1">
             <Scratchpad
               taskListId={taskList.id}
