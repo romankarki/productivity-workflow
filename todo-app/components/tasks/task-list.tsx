@@ -36,6 +36,8 @@ interface TaskListProps {
   filterLabelIds?: string[];
   /** Controls whether tasks are grouped by status or by label */
   groupBy?: GroupByMode;
+  /** When set, list enters focus mode and renders only this task */
+  focusTaskId?: string | null;
 }
 
 /** Represents one label bucket when grouping by label */
@@ -131,6 +133,7 @@ export function TaskList({
   onReorderTask,
   filterLabelIds = [],
   groupBy = "status",
+  focusTaskId = null,
 }: TaskListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -162,6 +165,11 @@ export function TaskList({
     () => sortedTasks.filter((t) => t.completed),
     [sortedTasks]
   );
+  const focusTask = useMemo(
+    () => (focusTaskId ? sortedTasks.find((task) => task.id === focusTaskId) ?? null : null),
+    [focusTaskId, sortedTasks]
+  );
+  const isFocusMode = !!focusTask;
 
   /* ---- shared drag handler (only for status-based incomplete list) ---- */
   const handleDragEnd = (event: DragEndEvent) => {
@@ -197,6 +205,23 @@ export function TaskList({
         <p className="mt-1 text-sm text-muted-foreground">
           Add your first task below to get started
         </p>
+      </div>
+    );
+  }
+
+  if (isFocusMode && focusTask) {
+    return (
+      <div className="animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/14 via-card/70 to-card/45 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.28)] ring-1 ring-white/10 backdrop-blur-xl sm:p-3">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 bottom-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
+          <TaskItem
+            task={focusTask}
+            onUpdate={(data) => onUpdateTask(focusTask.id, data)}
+            onDelete={() => onDeleteTask(focusTask.id)}
+            isFocusMode={true}
+          />
+        </div>
       </div>
     );
   }
