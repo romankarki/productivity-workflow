@@ -122,11 +122,13 @@ export const TaskItem = memo(function TaskItem({
     return (
       <div
         className={cn(
-          "group relative flex flex-col rounded-xl border border-border/40 bg-card/70 p-4 shadow-sm transition-all duration-300 sm:p-5",
+          "group relative flex flex-col overflow-hidden rounded-[1.25rem] bg-card/45 p-4 shadow-[0_16px_48px_rgba(0,0,0,0.2)] ring-1 ring-white/10 backdrop-blur-xl transition-all duration-300 sm:p-6",
           "animate-in fade-in zoom-in-95 duration-300",
-          isRunning && "border-primary/40 bg-primary/10 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
+          isRunning && "bg-primary/8 ring-primary/35 shadow-[0_20px_60px_rgba(var(--primary),0.12)]"
         )}
       >
+        <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 -translate-y-8 translate-x-8 rounded-full bg-primary/15 blur-3xl" />
+
         <div className="flex items-start gap-3">
           <div className="pt-1">
             <TaskCheckbox checked={task.completed} onChange={handleToggleComplete} />
@@ -157,7 +159,7 @@ export const TaskItem = memo(function TaskItem({
               </button>
             )}
 
-            <div className="mt-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-background/45 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground ring-1 ring-white/10">
               <Timer className={cn("h-3.5 w-3.5", isRunning && "text-primary")} />
               <span>
                 {isRunning && "Running"}
@@ -179,14 +181,14 @@ export const TaskItem = memo(function TaskItem({
         </div>
 
         {!task.completed && (
-          <div className="mt-4 rounded-2xl border border-border/50 bg-background/40 p-4 sm:p-6">
+          <div className="mt-5 rounded-3xl bg-gradient-to-b from-background/60 to-background/25 p-5 shadow-inner shadow-black/20 ring-1 ring-white/10 sm:p-8">
             <div className="flex justify-center">
               <TimeDisplay
                 milliseconds={elapsedTime}
                 size="lg"
                 showMillis={isRunning}
                 className={cn(
-                  "text-6xl tracking-tight sm:text-7xl md:text-8xl",
+                  "text-6xl tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] sm:text-7xl md:text-8xl",
                   isRunning && "text-primary",
                   isPaused && "text-yellow-500",
                   isStopped && "text-muted-foreground"
@@ -200,9 +202,9 @@ export const TaskItem = memo(function TaskItem({
                 disabled={isLoading || isStopped}
                 size="lg"
                 className={cn(
-                  "min-w-32 gap-2",
+                  "min-w-32 gap-2 rounded-full px-6",
                   isRunning && "bg-yellow-500 text-black hover:bg-yellow-600",
-                  !isRunning && "bg-primary hover:bg-primary/90"
+                  !isRunning && "bg-primary/90 hover:bg-primary"
                 )}
               >
                 {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -215,7 +217,7 @@ export const TaskItem = memo(function TaskItem({
                   disabled={isLoading}
                   variant="outline"
                   size="lg"
-                  className="gap-2"
+                  className="gap-2 rounded-full border-white/20 bg-background/35 hover:bg-background/50"
                 >
                   <Square className="h-4 w-4" />
                   Stop

@@ -212,7 +212,9 @@ export function TaskList({
   if (isFocusMode && focusTask) {
     return (
       <div className="animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-300">
-        <div className="rounded-2xl border border-primary/30 bg-gradient-to-b from-primary/10 via-card/80 to-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-sm sm:p-4">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/14 via-card/70 to-card/45 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.28)] ring-1 ring-white/10 backdrop-blur-xl sm:p-3">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 bottom-0 h-44 w-44 rounded-full bg-primary/10 blur-3xl" />
           <TaskItem
             task={focusTask}
             onUpdate={(data) => onUpdateTask(focusTask.id, data)}

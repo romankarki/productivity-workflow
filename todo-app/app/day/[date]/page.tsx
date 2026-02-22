@@ -195,7 +195,7 @@ export default function DayPage({ params }: DayPageProps) {
 
       {isFocusMode && (
         <div className="mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-primary">
+          <div className="rounded-xl bg-gradient-to-r from-primary/12 via-primary/8 to-transparent px-3 py-2 text-xs text-primary shadow-sm ring-1 ring-primary/20 backdrop-blur-xl">
             Focus mode is active for this task. Pause or stop the timer to return to the full task list.
           </div>
         </div>
@@ -206,8 +206,10 @@ export default function DayPage({ params }: DayPageProps) {
         {/* Task List Area - Takes 2 columns on large screens */}
         <div className={isFocusMode ? "" : "lg:col-span-2"}>
           <Card
-            className={`h-full border-border/40 backdrop-blur transition-all duration-300 ${
-              isFocusMode ? "border-primary/30 bg-primary/5 shadow-lg" : "bg-card/50"
+            className={`h-full backdrop-blur transition-all duration-300 ${
+              isFocusMode
+                ? "border-0 bg-gradient-to-br from-card/80 via-card/60 to-card/40 shadow-[0_24px_70px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
+                : "border-border/40 bg-card/50"
             }`}
           >
             <CardContent className="p-6">
