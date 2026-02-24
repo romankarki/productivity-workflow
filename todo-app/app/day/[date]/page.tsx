@@ -11,7 +11,13 @@ import { Scratchpad } from "@/components/scratchpad/scratchpad";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
 import { useScratchpadPreferences } from "@/lib/hooks/use-scratchpad-preferences";
-import { useCreateTask, useUpdateTask, useDeleteTask, useReorderTask } from "@/lib/hooks/use-tasks";
+import {
+  useCreateTask,
+  useUpdateTask,
+  useDeleteTask,
+  useReorderTask,
+  useMoveTaskToNextDay,
+} from "@/lib/hooks/use-tasks";
 import { useStopwatchContext } from "@/lib/context/stopwatch-context";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,6 +42,7 @@ export default function DayPage({ params }: DayPageProps) {
   const updateTask = useUpdateTask(date);
   const deleteTask = useDeleteTask(date);
   const reorderTask = useReorderTask(date);
+  const moveTaskToNextDay = useMoveTaskToNextDay(date);
 
   // Scratchpad preferences
   const { isExpanded: scratchpadExpanded, setIsExpanded: setScratchpadExpanded, toggleExpanded: toggleScratchpad } = useScratchpadPreferences();
@@ -176,6 +183,10 @@ export default function DayPage({ params }: DayPageProps) {
     );
   };
 
+  const handleMoveTaskToNextDay = (id: string) => {
+    moveTaskToNextDay.mutate(id);
+  };
+
   return (
     <MainLayout>
       <DayHeader date={date} />
@@ -219,6 +230,13 @@ export default function DayPage({ params }: DayPageProps) {
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
                 onReorderTask={handleReorderTask}
+                onMoveTaskToNextDay={handleMoveTaskToNextDay}
+                movingTaskId={
+                  moveTaskToNextDay.isPending &&
+                  typeof moveTaskToNextDay.variables === "string"
+                    ? moveTaskToNextDay.variables
+                    : null
+                }
                 filterLabelIds={labelFilters}
                 groupBy={groupBy}
                 focusTaskId={focusTaskId}

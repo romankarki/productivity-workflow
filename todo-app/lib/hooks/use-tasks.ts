@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Task, CreateTaskInput, UpdateTaskInput, TaskList } from "@/lib/types/task";
 import { getUserId } from "./use-user";
 import { toastActions } from "./use-toast-actions";
+import { addDays, format, parseISO } from "date-fns";
 
 // Create a new task
 async function createTask(
@@ -107,6 +108,32 @@ async function updateTaskOrder(
 
   const result = await response.json();
   return result.task;
+}
+
+// Move task to next day
+async function moveTaskToNextDay(
+  id: string
+): Promise<{ task: Task; targetDate: string }> {
+  const userId = getUserId();
+
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  const response = await fetch(`/api/tasks/${id}/move-next-day`, {
+    method: "POST",
+    headers: {
+      "x-user-id": userId,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to move task");
+  }
+
+  const result = await response.json();
+  return result;
 }
 
 // Hook to create a task
@@ -302,6 +329,47 @@ export function useReorderTask(date: string) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["taskList", date] });
+    },
+  });
+}
+
+// Hook to move task to the next day
+export function useMoveTaskToNextDay(date: string) {
+  const queryClient = useQueryClient();
+  const nextDate = format(addDays(parseISO(date), 1), "yyyy-MM-dd");
+
+  return useMutation({
+    mutationFn: (id: string) => moveTaskToNextDay(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["taskList", date] });
+
+      const previousTaskList = queryClient.getQueryData<TaskList>([
+        "taskList",
+        date,
+      ]);
+
+      if (previousTaskList?.tasks) {
+        queryClient.setQueryData<TaskList>(["taskList", date], {
+          ...previousTaskList,
+          tasks: previousTaskList.tasks.filter((task) => task.id !== id),
+        });
+      }
+
+      return { previousTaskList };
+    },
+    onError: (err, _variables, context) => {
+      if (context?.previousTaskList) {
+        queryClient.setQueryData(["taskList", date], context.previousTaskList);
+      }
+      const message = err instanceof Error ? err.message : "Failed to move task";
+      toastActions.error(message);
+    },
+    onSuccess: () => {
+      toastActions.success("Task moved to next day");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["taskList", date] });
+      queryClient.invalidateQueries({ queryKey: ["taskList", nextDate] });
     },
   });
 }

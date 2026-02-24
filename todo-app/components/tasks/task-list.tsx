@@ -33,6 +33,8 @@ interface TaskListProps {
   onUpdateTask: (id: string, data: { title?: string; completed?: boolean }) => void;
   onDeleteTask: (id: string) => void;
   onReorderTask?: (id: string, newOrder: number) => void;
+  onMoveTaskToNextDay?: (id: string) => void;
+  movingTaskId?: string | null;
   filterLabelIds?: string[];
   /** Controls whether tasks are grouped by status or by label */
   groupBy?: GroupByMode;
@@ -131,6 +133,8 @@ export function TaskList({
   onUpdateTask,
   onDeleteTask,
   onReorderTask,
+  onMoveTaskToNextDay,
+  movingTaskId = null,
   filterLabelIds = [],
   groupBy = "status",
   focusTaskId = null,
@@ -219,6 +223,12 @@ export function TaskList({
             task={focusTask}
             onUpdate={(data) => onUpdateTask(focusTask.id, data)}
             onDelete={() => onDeleteTask(focusTask.id)}
+            onMoveToNextDay={
+              onMoveTaskToNextDay
+                ? () => onMoveTaskToNextDay(focusTask.id)
+                : undefined
+            }
+            isMovingToNextDay={movingTaskId === focusTask.id}
             isFocusMode={true}
           />
         </div>
@@ -283,6 +293,12 @@ export function TaskList({
                         task={task}
                         onUpdate={(data) => onUpdateTask(task.id, data)}
                         onDelete={() => onDeleteTask(task.id)}
+                        onMoveToNextDay={
+                          onMoveTaskToNextDay
+                            ? () => onMoveTaskToNextDay(task.id)
+                            : undefined
+                        }
+                        isMovingToNextDay={movingTaskId === task.id}
                       />
                     ) : null
                   }
@@ -349,6 +365,12 @@ export function TaskList({
                           task={task}
                           onUpdate={(data) => onUpdateTask(task.id, data)}
                           onDelete={() => onDeleteTask(task.id)}
+                          onMoveToNextDay={
+                            onMoveTaskToNextDay
+                              ? () => onMoveTaskToNextDay(task.id)
+                              : undefined
+                          }
+                          isMovingToNextDay={movingTaskId === task.id}
                         />
                       ) : null
                     }
@@ -387,6 +409,12 @@ export function TaskList({
                       task={task}
                       onUpdate={(data) => onUpdateTask(task.id, data)}
                       onDelete={() => onDeleteTask(task.id)}
+                      onMoveToNextDay={
+                        onMoveTaskToNextDay
+                          ? () => onMoveTaskToNextDay(task.id)
+                          : undefined
+                      }
+                      isMovingToNextDay={movingTaskId === task.id}
                     />
                   ) : null
                 }

@@ -9,12 +9,16 @@ interface SortableTaskItemProps {
   task: Task;
   onUpdate: (data: { title?: string; completed?: boolean }) => void;
   onDelete: () => void;
+  onMoveToNextDay?: () => void;
+  isMovingToNextDay?: boolean;
 }
 
 export function SortableTaskItem({
   task,
   onUpdate,
   onDelete,
+  onMoveToNextDay,
+  isMovingToNextDay = false,
 }: SortableTaskItemProps) {
   const {
     attributes,
@@ -37,6 +41,8 @@ export function SortableTaskItem({
         task={task}
         onUpdate={onUpdate}
         onDelete={onDelete}
+        onMoveToNextDay={onMoveToNextDay}
+        isMovingToNextDay={isMovingToNextDay}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}
       />

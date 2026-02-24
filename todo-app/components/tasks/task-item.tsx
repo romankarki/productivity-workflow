@@ -10,7 +10,7 @@ import { LabelList } from "@/components/labels/label-list";
 import { LabelSelector } from "@/components/labels/label-selector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, GripVertical, Tag, Pause, Play, Square, Timer } from "lucide-react";
+import { Trash2, GripVertical, Tag, Pause, Play, Square, Timer, ArrowRight } from "lucide-react";
 import { useStopwatch } from "@/lib/hooks/use-stopwatch";
 import { useTaskLabels, useAddTaskLabel, useRemoveTaskLabel } from "@/lib/hooks/use-labels";
 
@@ -34,6 +34,8 @@ interface TaskItemProps {
   task: Task;
   onUpdate: (data: { title?: string; completed?: boolean }) => void;
   onDelete: () => void;
+  onMoveToNextDay?: () => void;
+  isMovingToNextDay?: boolean;
   onOpenStopwatch?: (taskId: string) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
   isDragging?: boolean;
@@ -44,6 +46,8 @@ export const TaskItem = memo(function TaskItem({
   task,
   onUpdate,
   onDelete,
+  onMoveToNextDay,
+  isMovingToNextDay = false,
   onOpenStopwatch,
   dragHandleProps,
   isDragging = false,
@@ -130,6 +134,10 @@ export const TaskItem = memo(function TaskItem({
 
   const handleRemoveLabel = async (labelId: string) => {
     await removeLabel.mutateAsync({ taskId: task.id, labelId });
+  };
+
+  const handleMoveToNextDay = () => {
+    onMoveToNextDay?.();
   };
 
   const hasElapsedTime = elapsedTime > 0 || isRunning || isPaused || isStopped;
@@ -354,6 +362,24 @@ export const TaskItem = memo(function TaskItem({
               onClick={handleOpenStopwatch}
             />
           </div>
+        )}
+
+        {/* Delete Button - larger touch target */}
+        {!task.completed && onMoveToNextDay && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleMoveToNextDay}
+            title="Move to next day"
+            disabled={isMovingToNextDay || isLoading || isRunning || isPaused}
+            className={cn(
+              "h-8 w-8 sm:h-7 sm:w-7 shrink-0 text-muted-foreground transition-all hover:text-primary",
+              "opacity-100 sm:opacity-0 sm:group-hover:opacity-100",
+              isDragging && "opacity-0"
+            )}
+          >
+            <ArrowRight className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+          </Button>
         )}
 
         {/* Delete Button - larger touch target */}
