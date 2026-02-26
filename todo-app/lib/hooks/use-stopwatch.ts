@@ -177,6 +177,7 @@ export function useStopwatch(taskId: string): UseStopwatchReturn {
     onSuccess: (data) => {
       queryClient.setQueryData(["stopwatch", taskId], data);
       queryClient.invalidateQueries({ queryKey: ["activeStopwatch"] });
+      queryClient.invalidateQueries({ queryKey: ["stopwatches", "today-total"] });
     },
     onError: (err: Error) => setError(err),
   });
@@ -184,9 +185,12 @@ export function useStopwatch(taskId: string): UseStopwatchReturn {
   const updateMutation = useMutation({
     mutationFn: ({ action }: { action: "pause" | "resume" | "stop" }) =>
       updateStopwatch(stopwatch!.id, action),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       queryClient.setQueryData(["stopwatch", taskId], data);
       queryClient.invalidateQueries({ queryKey: ["activeStopwatch"] });
+      if (variables.action === "stop") {
+        queryClient.invalidateQueries({ queryKey: ["stopwatches", "today-total"] });
+      }
     },
     onError: (err: Error) => setError(err),
   });

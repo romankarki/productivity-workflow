@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    // Check for any existing active stopwatch for the user
+    // Block if any unfinished stopwatch (running or paused) already exists
     const activeStopwatch = await prisma.stopwatch.findFirst({
       where: {
-        isActive: true,
+        endTime: null,
         task: {
           taskList: { userId },
         },
@@ -92,14 +92,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Find active stopwatch
+    // Find active or paused (not yet stopped) stopwatch
     const activeStopwatch = await prisma.stopwatch.findFirst({
       where: {
-        isActive: true,
+        endTime: null,
         task: {
           taskList: { userId },
         },
       },
+      orderBy: { createdAt: "desc" },
       include: {
         laps: {
           include: {
