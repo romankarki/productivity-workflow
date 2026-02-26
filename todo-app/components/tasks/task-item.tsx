@@ -15,19 +15,7 @@ import { useStopwatch } from "@/lib/hooks/use-stopwatch";
 import { useTaskLabels, useAddTaskLabel, useRemoveTaskLabel } from "@/lib/hooks/use-labels";
 
 function FlipClockTime({ milliseconds }: { milliseconds: number }) {
-  const seconds = Math.floor(milliseconds / 1000);
-  const value = formatTime(milliseconds, false);
-
-  return (
-    <div className="relative h-[1.15em] overflow-hidden leading-none">
-      <span
-        key={seconds}
-        className="block animate-[timer-flip_320ms_cubic-bezier(0.2,0.8,0.2,1)]"
-      >
-        {value}
-      </span>
-    </div>
-  );
+  return <span>{formatTime(milliseconds, false)}</span>;
 }
 
 interface TaskItemProps {
