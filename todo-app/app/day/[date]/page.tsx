@@ -259,16 +259,16 @@ export default function DayPage({ params }: DayPageProps) {
         {/* Scratchpad - Takes 1 column on large screens */}
         {!taskListLoading && taskList && !isFocusMode && (
           <div className="space-y-4 lg:col-span-1">
+            <DailyWins
+              date={date}
+              initialDailyWins={taskList.dailyWins || ""}
+            />
             <Scratchpad
               taskListId={taskList.id}
               date={date}
               initialNotes={taskList.notes || ""}
               defaultExpanded={scratchpadExpanded}
               onToggle={setScratchpadExpanded}
-            />
-            <DailyWins
-              date={date}
-              initialDailyWins={taskList.dailyWins || ""}
             />
           </div>
         )}
