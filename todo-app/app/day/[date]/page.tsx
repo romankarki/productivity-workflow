@@ -7,6 +7,7 @@ import { DayHeader } from "@/components/tasks/day-header";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskInput } from "@/components/tasks/task-input";
 import { TaskFilters, type GroupByMode } from "@/components/tasks/task-filters";
+import { DailyWins } from "@/components/tasks/daily-wins";
 import { Scratchpad } from "@/components/scratchpad/scratchpad";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
@@ -257,13 +258,17 @@ export default function DayPage({ params }: DayPageProps) {
 
         {/* Scratchpad - Takes 1 column on large screens */}
         {!taskListLoading && taskList && !isFocusMode && (
-          <div className="lg:col-span-1">
+          <div className="space-y-4 lg:col-span-1">
             <Scratchpad
               taskListId={taskList.id}
               date={date}
               initialNotes={taskList.notes || ""}
               defaultExpanded={scratchpadExpanded}
               onToggle={setScratchpadExpanded}
+            />
+            <DailyWins
+              date={date}
+              initialDailyWins={taskList.dailyWins || ""}
             />
           </div>
         )}

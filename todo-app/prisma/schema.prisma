@@ -45,6 +45,7 @@ model TaskList {
   weeklyGoal  Int?
   monthlyGoal Int?
   notes       String?  @db.Text // Scratchpad content for the day
+  dailyWins   String?  @db.Text // Newline-separated list of daily wins
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
