@@ -10,7 +10,7 @@ import { LabelList } from "@/components/labels/label-list";
 import { LabelSelector } from "@/components/labels/label-selector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, GripVertical, Tag, Pause, Play, Square, Timer, ArrowRight } from "lucide-react";
+import { Trash2, GripVertical, Tag, Pause, Play, Square, ArrowRight, Loader2 } from "lucide-react";
 import { useStopwatch } from "@/lib/hooks/use-stopwatch";
 import { useTaskLabels, useAddTaskLabel, useRemoveTaskLabel } from "@/lib/hooks/use-labels";
 
@@ -144,137 +144,143 @@ export const TaskItem = memo(function TaskItem({
 
   if (isFocusMode) {
     return (
-      <div
-        className={cn(
-          "group relative flex flex-col overflow-hidden rounded-[1.25rem] bg-card/45 p-4 shadow-[0_16px_48px_rgba(0,0,0,0.2)] ring-1 ring-white/10 backdrop-blur-xl transition-all duration-300 sm:p-6",
-          "animate-in fade-in zoom-in-95 duration-300",
-          isRunning && "bg-primary/8 ring-primary/35 shadow-[0_20px_60px_rgba(var(--primary),0.12)]"
-        )}
-      >
-        <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 -translate-y-8 translate-x-8 rounded-full bg-primary/15 blur-3xl" />
+      <div className="overflow-hidden rounded-2xl border border-zinc-800/60 bg-zinc-950">
+        {/* Task header */}
+        <div className="flex items-center gap-3 border-b border-zinc-800/50 px-4 py-3">
+          <TaskCheckbox checked={task.completed} onChange={handleToggleComplete} />
 
-        <div className="flex items-start gap-3">
-          <div className="pt-1">
-            <TaskCheckbox checked={task.completed} onChange={handleToggleComplete} />
-          </div>
+          {isEditing ? (
+            <Input
+              ref={inputRef}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={handleKeyDown}
+              className="h-7 flex-1 border-none bg-transparent px-0 text-sm text-zinc-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className={cn(
+                "flex-1 text-left text-sm transition-colors hover:text-zinc-300",
+                task.completed ? "text-zinc-600 line-through" : "text-zinc-400"
+              )}
+            >
+              {task.title}
+            </button>
+          )}
 
-          <div className="min-w-0 flex-1">
-            {isEditing ? (
-              <Input
-                ref={inputRef}
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                onBlur={handleSave}
-                onKeyDown={handleKeyDown}
-                className="h-11 border-none bg-transparent px-0 text-xl font-semibold sm:text-2xl focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className={cn(
-                  "w-full text-left text-xl font-semibold transition-colors sm:text-2xl",
-                  task.completed
-                    ? "text-muted-foreground line-through"
-                    : "text-foreground"
-                )}
-              >
-                {task.title}
-              </button>
-            )}
-
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-background/45 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground ring-1 ring-white/10">
-              <Timer className={cn("h-3.5 w-3.5", isRunning && "text-primary")} />
-              <span>
-                {isRunning && "Running"}
-                {isPaused && "Paused"}
-                {!isRunning && !isPaused && !isStopped && "Ready"}
-                {isStopped && "Stopped"}
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
             onClick={onDelete}
-            className="h-8 w-8 shrink-0 text-muted-foreground transition-all hover:text-destructive"
+            className="text-zinc-700 transition-colors hover:text-zinc-400"
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
         </div>
 
+        {/* Stopwatch body */}
         {!task.completed && (
-          <div className="mt-5 rounded-3xl bg-gradient-to-b from-background/60 to-background/25 p-5 shadow-inner shadow-black/20 ring-1 ring-white/10 sm:p-8">
-            <div className="flex justify-center">
-              <div
-                className={cn(
-                  "text-6xl tracking-[0.06em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] sm:text-7xl md:text-8xl",
-                  "italic [font-family:var(--font-display),var(--font-geist-mono),ui-monospace,monospace]",
-                  isRunning && "text-primary",
-                  isPaused && "text-yellow-500",
-                  isStopped && "text-muted-foreground"
-                )}
-              >
-                <FlipClockTime milliseconds={elapsedTime} />
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-              <Button
-                onClick={handleStopwatchToggle}
-                disabled={isLoading || isStopped}
-                size="lg"
-                className={cn(
-                  "min-w-32 gap-2 rounded-full px-6",
-                  isRunning && "bg-yellow-500 text-black hover:bg-yellow-600",
-                  !isRunning && "bg-primary/90 hover:bg-primary"
-                )}
-              >
-                {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {isRunning ? "Pause" : isPaused ? "Resume" : "Start"}
-              </Button>
-
-              {(isRunning || isPaused) && (
-                <Button
-                  onClick={handleStopwatchStop}
-                  disabled={isLoading}
-                  variant="destructive"
-                  size="lg"
-                  className="gap-2 rounded-full border-none bg-[color-mix(in_oklab,var(--destructive)_82%,black_18%)] text-white hover:bg-[color-mix(in_oklab,var(--destructive)_92%,black_8%)]"
-                >
-                  <Square className="h-4 w-4" />
-                  Stop
-                </Button>
+          <div className="flex flex-col items-center px-6 py-10 sm:py-14">
+            {/* Timer */}
+            <div
+              className={cn(
+                "font-mono tabular-nums leading-none tracking-tight",
+                "text-[4.5rem] font-thin sm:text-[6rem]",
+                isRunning && "text-white",
+                isPaused && "text-amber-300",
+                isStopped && "text-zinc-700",
+                !isRunning && !isPaused && !isStopped && "text-zinc-500"
               )}
+            >
+              <FlipClockTime milliseconds={elapsedTime} />
             </div>
 
-            {hasElapsedTime && (
-              <div className="mt-3 text-center text-xs text-muted-foreground">
-                Pause or stop to return to your full task list
+            {/* Status */}
+            <p
+              className={cn(
+                "mt-3 text-[11px] font-medium uppercase tracking-[0.15em]",
+                isRunning && "text-emerald-400",
+                isPaused && "text-amber-400/80",
+                isStopped && "text-zinc-700",
+                !isRunning && !isPaused && !isStopped && "text-zinc-600"
+              )}
+            >
+              {isRunning ? "Running" : isPaused ? "Paused" : isStopped ? "Stopped" : "Ready"}
+            </p>
+
+            {/* Controls */}
+            <div className="mt-10 flex items-end gap-10">
+              {/* Stop — left circle */}
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={handleStopwatchStop}
+                  disabled={!isRunning && !isPaused}
+                  className={cn(
+                    "flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 transition-all",
+                    (isRunning || isPaused)
+                      ? "hover:bg-zinc-700 active:scale-95"
+                      : "cursor-not-allowed opacity-25"
+                  )}
+                >
+                  <Square className="h-5 w-5 fill-zinc-300 text-zinc-300" />
+                </button>
+                <span className="text-[11px] text-zinc-600">Stop</span>
               </div>
-            )}
+
+              {/* Start / Pause — right circle */}
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={handleStopwatchToggle}
+                  disabled={isStopped || isLoading}
+                  className={cn(
+                    "flex h-16 w-16 items-center justify-center rounded-full transition-all active:scale-95",
+                    isRunning
+                      ? "bg-amber-400/15 hover:bg-amber-400/25"
+                      : "bg-emerald-400/15 hover:bg-emerald-400/25",
+                    (isStopped || isLoading) && "cursor-not-allowed opacity-25"
+                  )}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
+                  ) : isRunning ? (
+                    <Pause className="h-5 w-5 text-amber-400" />
+                  ) : (
+                    <Play className="h-5 w-5 text-emerald-400" />
+                  )}
+                </button>
+                <span
+                  className={cn(
+                    "text-[11px]",
+                    isRunning ? "text-amber-400/70" : "text-emerald-400/70",
+                    (isStopped || isLoading) && "text-zinc-600"
+                  )}
+                >
+                  {isRunning ? "Pause" : isPaused ? "Resume" : "Start"}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* Labels footer */}
         {(taskLabels.length > 0 || !task.completed) && (
-          <div className="mt-4 flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800/50 px-4 py-3">
             <LabelList
               labels={taskLabels}
               size="sm"
               max={6}
               onRemove={!task.completed ? handleRemoveLabel : undefined}
             />
-
             {!task.completed && (
               <LabelSelector selectedLabels={taskLabels} onToggle={handleToggleLabel}>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                  className="h-6 gap-1 px-2 text-xs text-zinc-600 hover:bg-transparent hover:text-zinc-400"
                 >
-                  <Tag className="h-3.5 w-3.5" />
-                  {taskLabels.length === 0 && "Add label"}
+                  <Tag className="h-3 w-3" />
+                  {taskLabels.length === 0 && "Label"}
                 </Button>
               </LabelSelector>
             )}
