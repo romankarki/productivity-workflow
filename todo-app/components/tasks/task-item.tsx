@@ -173,7 +173,7 @@ export const TaskItem = memo(function TaskItem({
             {/* Timer */}
             <div
               className={cn(
-                "font-mono tabular-nums leading-none tracking-tight",
+                "font-mono tabular-nums leading-none tracking-tight transition-colors duration-700 ease-in-out",
                 "text-[4.5rem] font-thin sm:text-[6rem]",
                 isRunning && "text-white",
                 isPaused && "text-amber-300",
@@ -187,7 +187,7 @@ export const TaskItem = memo(function TaskItem({
             {/* Status */}
             <p
               className={cn(
-                "mt-3 text-[11px] font-medium uppercase tracking-[0.15em]",
+                "mt-3 text-[11px] font-medium uppercase tracking-[0.15em] transition-colors duration-500 ease-in-out",
                 isRunning && "text-emerald-400",
                 isPaused && "text-amber-400/80",
                 isStopped && "text-zinc-700",
@@ -205,7 +205,7 @@ export const TaskItem = memo(function TaskItem({
                   onClick={handleStopwatchStop}
                   disabled={!isRunning && !isPaused}
                   className={cn(
-                    "flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 transition-all",
+                    "flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 transition-all duration-300",
                     (isRunning || isPaused)
                       ? "hover:bg-zinc-700 active:scale-95"
                       : "cursor-not-allowed opacity-25"
@@ -222,7 +222,7 @@ export const TaskItem = memo(function TaskItem({
                   onClick={handleStopwatchToggle}
                   disabled={isStopped || isLoading}
                   className={cn(
-                    "flex h-16 w-16 items-center justify-center rounded-full transition-all active:scale-95",
+                    "relative flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 active:scale-95",
                     isRunning
                       ? "bg-amber-400/15 hover:bg-amber-400/25"
                       : "bg-emerald-400/15 hover:bg-emerald-400/25",
@@ -231,15 +231,26 @@ export const TaskItem = memo(function TaskItem({
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
-                  ) : isRunning ? (
-                    <Pause className="h-5 w-5 text-amber-400" />
                   ) : (
-                    <Play className="h-5 w-5 text-emerald-400" />
+                    <>
+                      <Pause
+                        className={cn(
+                          "absolute h-5 w-5 text-amber-400 transition-all duration-300",
+                          isRunning ? "opacity-100 scale-100" : "opacity-0 scale-75"
+                        )}
+                      />
+                      <Play
+                        className={cn(
+                          "absolute h-5 w-5 text-emerald-400 transition-all duration-300",
+                          !isRunning ? "opacity-100 scale-100" : "opacity-0 scale-75"
+                        )}
+                      />
+                    </>
                   )}
                 </button>
                 <span
                   className={cn(
-                    "text-[11px]",
+                    "text-[11px] transition-colors duration-300",
                     isRunning ? "text-amber-400/70" : "text-emerald-400/70",
                     (isStopped || isLoading) && "text-zinc-600"
                   )}
