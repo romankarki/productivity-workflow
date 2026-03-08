@@ -42,9 +42,12 @@ export function GitHubContributionsGraph({
   total,
 }: GitHubContributionsProps) {
   const { weeks, monthLabels, totalContributions } = useMemo(() => {
-    const sorted = [...contributions].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    const year = new Date().getFullYear();
+    const sorted = [...contributions]
+      .filter((c) => new Date(c.date).getFullYear() === year)
+      .sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
 
     // Group into weeks (columns)
     const weekGroups: GitHubContribution[][] = [];
@@ -74,7 +77,7 @@ export function GitHubContributionsGraph({
       }
     }
 
-    const yearTotal = Object.values(total).reduce((a, b) => a + b, 0);
+    const yearTotal = total[year.toString()] || Object.values(total).reduce((a, b) => a + b, 0);
 
     return {
       weeks: weekGroups,
@@ -90,7 +93,7 @@ export function GitHubContributionsGraph({
           <span className="font-medium text-foreground">
             {totalContributions.toLocaleString()}
           </span>{" "}
-          contributions in the last year
+          contributions in {new Date().getFullYear()}
         </p>
       </div>
 

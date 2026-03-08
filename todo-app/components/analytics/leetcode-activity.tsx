@@ -51,15 +51,27 @@ export function LeetCodeActivity({
     const counts = Object.values(submissionCalendar);
     const maxCount = counts.length > 0 ? Math.max(...counts) : 1;
 
+    // Sum all submissions from the calendar directly (handles any timestamp format)
     let total = 0;
+    for (const [ts, count] of Object.entries(submissionCalendar)) {
+      const d = new Date(Number(ts) * 1000);
+      if (d.getUTCFullYear() === year) {
+        total += count;
+      }
+    }
+
+    // Build a lookup by YYYY-MM-DD using UTC dates from the calendar
+    const calendarByDate: Record<string, number> = {};
+    for (const [ts, count] of Object.entries(submissionCalendar)) {
+      const d = new Date(Number(ts) * 1000);
+      const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+      calendarByDate[key] = (calendarByDate[key] || 0) + count;
+    }
 
     while (current <= now) {
-      const timestamp = Math.floor(
-        new Date(current.getFullYear(), current.getMonth(), current.getDate()).getTime() / 1000
-      ).toString();
+      const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, "0")}-${String(current.getDate()).padStart(2, "0")}`;
 
-      const count = submissionCalendar[timestamp] || 0;
-      total += count;
+      const count = calendarByDate[dateStr] || 0;
 
       let level = 0;
       if (count > 0 && maxCount > 0) {
@@ -71,7 +83,7 @@ export function LeetCodeActivity({
       }
 
       days.push({
-        date: current.toISOString().slice(0, 10),
+        date: dateStr,
         count,
         level,
       });

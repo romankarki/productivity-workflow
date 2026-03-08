@@ -14,8 +14,9 @@ export async function GET(request: NextRequest) {
 
     // Use GitHub's GraphQL API (public, no auth needed for contribution data via the REST workaround)
     // Fetch the contributions page HTML and parse, or use the GitHub contributions API
+    const year = new Date().getFullYear();
     const response = await fetch(
-      `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=last`,
+      `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=${year}`,
       { next: { revalidate: 3600 } }
     );
 
