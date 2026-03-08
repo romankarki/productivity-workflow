@@ -26,7 +26,7 @@ export function SettingsForm() {
     }
 
     try {
-      await updateUser.mutateAsync(username.trim())
+      await updateUser.mutateAsync({ username: username.trim() })
       toast.success('Profile updated successfully')
       setHasChanges(false)
     } catch (error) {

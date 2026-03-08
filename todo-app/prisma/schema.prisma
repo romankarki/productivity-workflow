@@ -12,10 +12,12 @@ datasource db {
 
 // User model - simple username-based identification
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String   @id @default(cuid())
+  username         String   @unique
+  githubUsername   String?
+  leetcodeUsername String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   taskLists    TaskList[]
   labels       Label[]

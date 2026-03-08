@@ -1,6 +1,8 @@
 export interface User {
   id: string;
   username: string;
+  githubUsername: string | null;
+  leetcodeUsername: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -10,5 +12,7 @@ export interface CreateUserInput {
 }
 
 export interface UpdateUserInput {
-  username: string;
+  username?: string;
+  githubUsername?: string | null;
+  leetcodeUsername?: string | null;
 }

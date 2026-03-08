@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { User } from "@/lib/types/user";
+import { User, UpdateUserInput } from "@/lib/types/user";
 
 const USER_ID_KEY = "pomodoro_user_id";
 
@@ -59,7 +59,7 @@ async function createUser(username: string): Promise<User> {
 }
 
 // Update user
-async function updateUser(username: string): Promise<User> {
+async function updateUser(data: UpdateUserInput): Promise<User> {
   const userId = getUserId();
 
   if (!userId) {
@@ -72,7 +72,7 @@ async function updateUser(username: string): Promise<User> {
       "Content-Type": "application/json",
       "x-user-id": userId,
     },
-    body: JSON.stringify({ username }),
+    body: JSON.stringify(data),
   });
 
   if (!response.ok) {
@@ -80,8 +80,8 @@ async function updateUser(username: string): Promise<User> {
     throw new Error(error.error || "Failed to update user");
   }
 
-  const data = await response.json();
-  return data.user;
+  const result = await response.json();
+  return result.user;
 }
 
 // Hook to get current user

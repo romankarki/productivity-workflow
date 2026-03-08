@@ -85,42 +85,55 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { username } = body;
+    const { username, githubUsername, leetcodeUsername } = body;
 
-    if (!username || typeof username !== "string") {
-      return NextResponse.json(
-        { error: "Username is required" },
-        { status: 400 }
-      );
+    const updateData: Record<string, unknown> = {};
+
+    if (username !== undefined) {
+      if (!username || typeof username !== "string") {
+        return NextResponse.json(
+          { error: "Username is required" },
+          { status: 400 }
+        );
+      }
+
+      const trimmedUsername = username.trim();
+
+      if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
+        return NextResponse.json(
+          { error: "Username must be between 2 and 30 characters" },
+          { status: 400 }
+        );
+      }
+
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          username: trimmedUsername,
+          NOT: { id: userId },
+        },
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: "Username already taken" },
+          { status: 409 }
+        );
+      }
+
+      updateData.username = trimmedUsername;
     }
 
-    const trimmedUsername = username.trim();
-
-    if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
-      return NextResponse.json(
-        { error: "Username must be between 2 and 30 characters" },
-        { status: 400 }
-      );
+    if (githubUsername !== undefined) {
+      updateData.githubUsername = githubUsername?.trim() || null;
     }
 
-    // Check if username already exists (excluding current user)
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        username: trimmedUsername,
-        NOT: { id: userId },
-      },
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Username already taken" },
-        { status: 409 }
-      );
+    if (leetcodeUsername !== undefined) {
+      updateData.leetcodeUsername = leetcodeUsername?.trim() || null;
     }
 
     const user = await prisma.user.update({
       where: { id: userId },
-      data: { username: trimmedUsername },
+      data: updateData,
     });
 
     return NextResponse.json({ user });
