@@ -3,13 +3,10 @@
 import { format } from "date-fns";
 import Link from "next/link";
 import { MainLayout } from "@/components/layout/main-layout";
-import { QuickStats } from "@/components/dashboard/quick-stats";
+import { YearProgress } from "@/components/dashboard/year-progress";
 import { TodaySummary } from "@/components/dashboard/today-summary";
 import { useUser } from "@/lib/hooks/use-user";
 import { useTaskList } from "@/lib/hooks/use-tasklist";
-import { useStreak } from "@/lib/hooks/use-streak";
-import { useGoals } from "@/lib/hooks/use-goals";
-import { useStopwatchContext } from "@/lib/context/stopwatch-context";
 import { useCreateTask, useUpdateTask, useDeleteTask } from "@/lib/hooks/use-tasks";
 import { UsernameDialog } from "@/components/onboarding/username-dialog";
 import { Scratchpad } from "@/components/scratchpad/scratchpad";
@@ -18,16 +15,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Calendar, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
-import { formatTimeHuman } from "@/components/stopwatch/time-display";
 
 export default function Home() {
   const { data: user, isLoading: userLoading } = useUser();
   const today = format(new Date(), "yyyy-MM-dd");
   const { data: taskList, isLoading: taskListLoading } = useTaskList(today);
-  const { data: streakData } = useStreak();
-  const { data: goalsData } = useGoals(today);
-  const { elapsedTime } = useStopwatchContext();
-
   const createTask = useCreateTask(today);
   const updateTask = useUpdateTask(today);
   const deleteTask = useDeleteTask(today);
@@ -44,11 +36,7 @@ export default function Home() {
             <Skeleton className="h-10 w-72" />
             <Skeleton className="h-5 w-48" />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
-          </div>
+          <Skeleton className="h-28 w-full" />
           <Skeleton className="h-96" />
         </div>
       </MainLayout>
@@ -105,10 +93,7 @@ export default function Home() {
     });
   };
 
-  // Calculate stats
   const tasks = taskList?.tasks || [];
-  const completedToday = tasks.filter((t) => t.completed).length;
-  const totalToday = tasks.length;
 
   // Get greeting based on time of day
   const hour = new Date().getHours();
@@ -128,14 +113,8 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <QuickStats
-          streak={streakData?.currentStreak || 0}
-          todayCompleted={completedToday}
-          todayTotal={totalToday}
-          weekCompleted={goalsData?.weekly.completed || 0}
-          timeTracked={formatTimeHuman(elapsedTime)}
-        />
+        {/* Year Progress */}
+        <YearProgress />
 
         {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
