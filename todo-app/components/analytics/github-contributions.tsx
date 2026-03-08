@@ -11,7 +11,6 @@ import {
 
 interface GitHubContributionsProps {
   contributions: GitHubContribution[];
-  total: Record<string, number>;
 }
 
 const LEVEL_COLORS = [
@@ -45,15 +44,22 @@ function parseDate(dateStr: string): Date {
 
 export function GitHubContributionsGraph({
   contributions,
-  total,
 }: GitHubContributionsProps) {
   const { weeks, monthLabels, totalContributions } = useMemo(() => {
-    const year = new Date().getFullYear();
+    const now = new Date();
+    const year = now.getFullYear();
+    const today = `${year}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    // Filter to current year, up to today only
     const sorted = [...contributions]
-      .filter((c) => parseDate(c.date).getFullYear() === year)
-      .sort(
-        (a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime()
-      );
+      .filter((c) => c.date >= `${year}-01-01` && c.date <= today)
+      .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+
+    // Sum displayed contributions to match grid exactly
+    let gridTotal = 0;
+    for (const day of sorted) {
+      gridTotal += day.count;
+    }
 
     // Group into weeks (columns)
     const weekGroups: GitHubContribution[][] = [];
@@ -83,14 +89,12 @@ export function GitHubContributionsGraph({
       }
     }
 
-    const yearTotal = total[year.toString()] || Object.values(total).reduce((a, b) => a + b, 0);
-
     return {
       weeks: weekGroups,
       monthLabels: labels,
-      totalContributions: yearTotal,
+      totalContributions: gridTotal,
     };
-  }, [contributions, total]);
+  }, [contributions]);
 
   return (
     <div>

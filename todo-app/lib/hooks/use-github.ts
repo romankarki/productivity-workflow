@@ -31,6 +31,6 @@ export function useGitHubContributions(username: string | null | undefined) {
     queryKey: ["github", username],
     queryFn: () => fetchGitHubContributions(username!),
     enabled: !!username,
-    staleTime: 60 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 }

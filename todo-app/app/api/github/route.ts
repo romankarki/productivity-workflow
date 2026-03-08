@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const year = new Date().getFullYear();
     const response = await fetch(
       `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(username)}?y=${year}`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 600 } }
     );
 
     if (!response.ok) {

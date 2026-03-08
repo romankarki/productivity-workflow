@@ -176,7 +176,6 @@ export default function AnalyticsPage() {
               ) : githubData?.contributions ? (
                 <GitHubContributionsGraph
                   contributions={githubData.contributions}
-                  total={githubData.total}
                 />
               ) : (
                 <p className="py-4 text-center text-sm text-muted-foreground">
