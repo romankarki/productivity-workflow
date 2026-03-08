@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { MainLayout } from '@/components/layout/main-layout'
 import { SettingsForm } from '@/components/settings/settings-form'
 import { ThemeSelector } from '@/components/settings/theme-selector'
+import { IntegrationsForm } from '@/components/settings/integrations-form'
 import { DangerZone } from '@/components/settings/danger-zone'
 import { Settings, Loader2 } from 'lucide-react'
 import { useUser } from '@/lib/hooks/use-user'
@@ -75,6 +76,7 @@ export default function SettingsPage() {
           {/* Settings Sections */}
           <div className="space-y-6">
             <SettingsForm />
+            <IntegrationsForm />
             <ThemeSelector />
             <DangerZone />
           </div>
