@@ -13,6 +13,9 @@ export interface LeetCodeData {
   contestGlobalRanking: number | null;
   contestsAttended: number;
   topPercentage: number | null;
+  streak: number;
+  totalActiveDays: number;
+  submissionCalendar: Record<string, number>;
 }
 
 async function fetchLeetCodeStats(

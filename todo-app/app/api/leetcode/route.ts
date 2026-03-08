@@ -12,8 +12,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const year = new Date().getFullYear();
+
     const query = `
-      query getUserProfile($username: String!) {
+      query getUserProfile($username: String!, $year: Int!) {
         matchedUser(username: $username) {
           username
           profile {
@@ -24,6 +26,12 @@ export async function GET(request: NextRequest) {
               difficulty
               count
             }
+          }
+          userCalendar(year: $year) {
+            activeYears
+            streak
+            totalActiveDays
+            submissionCalendar
           }
         }
         userContestRanking(username: $username) {
@@ -40,7 +48,7 @@ export async function GET(request: NextRequest) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query,
-        variables: { username },
+        variables: { username, year },
       }),
       next: { revalidate: 3600 },
     });
@@ -82,6 +90,17 @@ export async function GET(request: NextRequest) {
         (s: { difficulty: string; count: number }) => s.difficulty === "Hard"
       )?.count || 0;
 
+    // Parse submission calendar: { "unix_timestamp": count, ... }
+    const calendar = user.userCalendar;
+    let submissionCalendar: Record<string, number> = {};
+    if (calendar?.submissionCalendar) {
+      try {
+        submissionCalendar = JSON.parse(calendar.submissionCalendar);
+      } catch {
+        // ignore parse errors
+      }
+    }
+
     return NextResponse.json({
       data: {
         username: user.username,
@@ -98,6 +117,9 @@ export async function GET(request: NextRequest) {
         topPercentage: contestRanking?.topPercentage
           ? parseFloat(contestRanking.topPercentage.toFixed(1))
           : null,
+        streak: calendar?.streak || 0,
+        totalActiveDays: calendar?.totalActiveDays || 0,
+        submissionCalendar,
       },
     });
   } catch (error) {

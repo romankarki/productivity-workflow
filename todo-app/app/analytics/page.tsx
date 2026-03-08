@@ -66,6 +66,17 @@ const LeetCodeStats = dynamic(
   }
 );
 
+const LeetCodeActivity = dynamic(
+  () =>
+    import("@/components/analytics/leetcode-activity").then((mod) => ({
+      default: mod.LeetCodeActivity,
+    })),
+  {
+    loading: () => <Skeleton className="h-[150px] w-full rounded-lg" />,
+    ssr: false,
+  }
+);
+
 function IntegrationPlaceholder({ service }: { service: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -189,6 +200,20 @@ export default function AnalyticsPage() {
                 </p>
               )}
             </div>
+
+            {/* LeetCode Activity Graph */}
+            {user.leetcodeUsername && leetcodeData?.submissionCalendar && (
+              <div className="rounded-xl border border-border/40 bg-card/50 p-4 transition-all duration-300 hover:border-border/60">
+                <h2 className="mb-4 text-lg font-semibold">
+                  LeetCode Activity
+                </h2>
+                <LeetCodeActivity
+                  submissionCalendar={leetcodeData.submissionCalendar}
+                  streak={leetcodeData.streak}
+                  totalActiveDays={leetcodeData.totalActiveDays}
+                />
+              </div>
+            )}
 
             {/* Task Completion Stats */}
             <StatsGrid data={timeData} isLoading={isLoading} />
