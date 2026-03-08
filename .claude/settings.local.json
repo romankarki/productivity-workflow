@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pnpm prisma:*)",
       "Bash(git:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "WebSearch"
     ]
   }
 }
