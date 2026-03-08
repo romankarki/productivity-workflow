@@ -37,6 +37,12 @@ const MONTHS = [
   "Dec",
 ];
 
+// Parse "YYYY-MM-DD" without timezone shift
+function parseDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 export function GitHubContributionsGraph({
   contributions,
   total,
@@ -44,9 +50,9 @@ export function GitHubContributionsGraph({
   const { weeks, monthLabels, totalContributions } = useMemo(() => {
     const year = new Date().getFullYear();
     const sorted = [...contributions]
-      .filter((c) => new Date(c.date).getFullYear() === year)
+      .filter((c) => parseDate(c.date).getFullYear() === year)
       .sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        (a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime()
       );
 
     // Group into weeks (columns)
@@ -54,7 +60,7 @@ export function GitHubContributionsGraph({
     let currentWeek: GitHubContribution[] = [];
 
     for (const day of sorted) {
-      const dow = new Date(day.date).getDay();
+      const dow = parseDate(day.date).getDay();
       if (dow === 0 && currentWeek.length > 0) {
         weekGroups.push(currentWeek);
         currentWeek = [];
@@ -70,7 +76,7 @@ export function GitHubContributionsGraph({
     let lastMonth = -1;
     for (let i = 0; i < weekGroups.length; i++) {
       const firstDay = weekGroups[i][0];
-      const month = new Date(firstDay.date).getMonth();
+      const month = parseDate(firstDay.date).getMonth();
       if (month !== lastMonth) {
         labels.push({ label: MONTHS[month], col: i });
         lastMonth = month;
@@ -132,7 +138,7 @@ export function GitHubContributionsGraph({
                   <div key={wi} className="flex flex-col gap-[2px]">
                     {Array.from({ length: 7 }).map((_, di) => {
                       const day = week.find(
-                        (d) => new Date(d.date).getDay() === di
+                        (d) => parseDate(d.date).getDay() === di
                       );
                       if (!day) {
                         return (
@@ -152,7 +158,7 @@ export function GitHubContributionsGraph({
                               {day.count !== 1 ? "s" : ""}
                             </p>
                             <p className="text-muted-foreground">
-                              {new Date(day.date).toLocaleDateString("en-US", {
+                              {parseDate(day.date).toLocaleDateString("en-US", {
                                 weekday: "short",
                                 month: "short",
                                 day: "numeric",
