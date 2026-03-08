@@ -20,6 +20,7 @@ model User {
   taskLists    TaskList[]
   labels       Label[]
   trackedRepos TrackedRepo[]
+  contests     Contest[]
 }
 
 // TrackedRepo - GitHub repos the user follows for open-source monitoring
@@ -139,4 +140,26 @@ model StopwatchLap {
 
   @@index([stopwatchId])
   @@index([labelId])
+}
+
+// Contest - LeetCode contest performance tracking
+model Contest {
+  id             String   @id @default(cuid())
+  userId         String
+  contestName    String
+  date           DateTime @db.Date
+  rank           Int?
+  score          Int?
+  ratingBefore   Int?
+  ratingAfter    Int?
+  problemsSolved Int?
+  totalProblems  Int?
+  finishTime     String?
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
