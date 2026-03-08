@@ -4,7 +4,8 @@
       "Bash(pnpm prisma:*)",
       "Bash(git:*)",
       "Bash(pnpm build:*)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:github-contributions-api.jogruber.de)"
     ]
   }
 }
