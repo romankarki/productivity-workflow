@@ -17,6 +17,7 @@ import {
 import { useUser } from "@/lib/hooks/use-user";
 import { useStreak } from "@/lib/hooks/use-streak";
 import { useStopwatchContext } from "@/lib/context/stopwatch-context";
+import { useTodayTotalTime } from "@/lib/hooks/use-today-total-time";
 import { formatTime } from "@/components/stopwatch/time-display";
 
 const navItems = [
@@ -34,6 +35,11 @@ export function Sidebar() {
   const { data: user } = useUser();
   const { data: streakData } = useStreak();
   const { activeStopwatch, elapsedTime } = useStopwatchContext();
+  const { data: completedTotal = 0 } = useTodayTotalTime();
+
+  // completedTotal = sum of fully stopped sessions today
+  // elapsedTime    = current session (live if running, totalDuration if paused, 0 if none)
+  const todayTotal = completedTotal + elapsedTime;
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/40 bg-card/50 backdrop-blur-xl">
@@ -101,11 +107,11 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Bottom Section -- iPhone-style clocked timer */}
+      {/* Bottom Section -- daily clocked timer */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-border/40 p-4">
         <div
           className={cn(
-            "rounded-xl p-4 transition-all",
+            "rounded-xl p-4 transition-all duration-500",
             activeStopwatch?.isActive
               ? "bg-linear-to-br from-primary/15 to-primary/5 ring-1 ring-primary/30"
               : "bg-linear-to-br from-zinc-800/60 to-zinc-900/60"
@@ -113,19 +119,17 @@ export function Sidebar() {
         >
           {/* Label */}
           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Clocked
+            Today
           </p>
 
-          {/* Large monospace timer -- the hero element */}
+          {/* Total time for today — always live */}
           <p
             className={cn(
-              "mt-1 font-mono text-[2rem] font-bold leading-none tabular-nums tracking-tight",
+              "mt-1 font-mono text-[2rem] font-bold leading-none tabular-nums tracking-tight transition-colors duration-500",
               activeStopwatch?.isActive ? "text-primary" : "text-foreground"
             )}
           >
-            {activeStopwatch?.isActive
-              ? formatTime(elapsedTime)
-              : "00:00"}
+            {formatTime(todayTotal)}
           </p>
 
           {/* Currently tracked task name */}
