@@ -2,7 +2,6 @@
 
 import { useLabels } from "@/lib/hooks/use-labels";
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { X, Filter } from "lucide-react";
 
@@ -24,10 +23,9 @@ export function LabelFilter({
   return (
     <div className="flex w-full min-w-0 items-center gap-2">
       <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-      
-      <ScrollArea className="min-w-0 flex-1 overflow-hidden">
-        <div className="flex w-max items-center gap-2 pb-2 pr-2">
-          {/* All Button */}
+
+      <div className="min-w-0 flex-1 overflow-x-auto scrollbar-thin">
+        <div className="flex w-max items-center gap-2 py-1 pr-2">
           <Button
             variant={selectedLabelIds.length === 0 ? "default" : "outline"}
             size="sm"
@@ -37,7 +35,6 @@ export function LabelFilter({
             All
           </Button>
 
-          {/* Label Filters */}
           {labels.map((label) => {
             const isSelected = selectedLabelIds.includes(label.id);
             return (
@@ -64,10 +61,8 @@ export function LabelFilter({
             );
           })}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
 
-      {/* Clear Filters */}
       {selectedLabelIds.length > 0 && (
         <Button
           variant="ghost"
