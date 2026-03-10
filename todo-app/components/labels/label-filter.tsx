@@ -21,10 +21,10 @@ export function LabelFilter({
   if (!labels || labels.length === 0) return null;
 
   return (
-    <div className="flex w-full min-w-0 items-center gap-2">
+    <div className="flex min-w-0 items-center gap-2">
       <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
 
-      <div className="min-w-0 flex-1 overflow-x-auto scrollbar-thin">
+      <div className="w-0 flex-1 overflow-x-auto scrollbar-thin">
         <div className="flex w-max items-center gap-2 py-1 pr-2">
           <Button
             variant={selectedLabelIds.length === 0 ? "default" : "outline"}
