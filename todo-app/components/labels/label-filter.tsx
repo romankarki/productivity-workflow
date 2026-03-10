@@ -25,7 +25,7 @@ export function LabelFilter({
     <div className="flex w-full min-w-0 items-center gap-2">
       <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
       
-      <ScrollArea className="min-w-0 flex-1">
+      <ScrollArea className="min-w-0 flex-1 overflow-hidden">
         <div className="flex w-max items-center gap-2 pb-2 pr-2">
           {/* All Button */}
           <Button

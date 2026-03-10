@@ -26,8 +26,8 @@ export function TaskFilters({
   return (
     <div className="rounded-lg border border-border/50 bg-muted/30 p-3 space-y-3">
       {/* Top row: label filters + group-by toggle */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="min-w-0 flex-1 basis-full lg:basis-auto overflow-hidden">
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <LabelFilter
             selectedLabelIds={selectedLabelIds}
             onToggle={onToggleLabel}
