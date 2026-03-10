@@ -26,8 +26,8 @@ export function TaskFilters({
   return (
     <div className="rounded-lg border border-border/50 bg-muted/30 p-3 space-y-3">
       {/* Top row: label filters + group-by toggle */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1 basis-full lg:basis-auto">
           <LabelFilter
             selectedLabelIds={selectedLabelIds}
             onToggle={onToggleLabel}
@@ -37,7 +37,7 @@ export function TaskFilters({
 
         {/* Group-by toggle pills */}
         {onGroupByChange && (
-          <div className="flex items-center shrink-0 rounded-lg border border-border/40 bg-muted/40 p-0.5">
+          <div className="ml-auto flex items-center shrink-0 rounded-lg border border-border/40 bg-muted/40 p-0.5">
             <Button
               variant="ghost"
               size="sm"
@@ -72,3 +72,4 @@ export function TaskFilters({
     </div>
   );
 }
+
