@@ -97,6 +97,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify user exists before creating
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
+
     const taskList = await prisma.taskList.create({
       data: {
         userId,

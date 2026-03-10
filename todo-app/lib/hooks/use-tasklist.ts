@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskList, UpdateTaskListInput } from "@/lib/types/task";
-import { getUserId } from "./use-user";
+import { getUserId, clearUserId } from "./use-user";
 
 // Fetch task list for a specific date
 async function fetchTaskList(date: string): Promise<TaskList> {
@@ -17,6 +17,9 @@ async function fetchTaskList(date: string): Promise<TaskList> {
   });
 
   if (!response.ok) {
+    if (response.status === 404) {
+      clearUserId();
+    }
     throw new Error("Failed to fetch task list");
   }
 
