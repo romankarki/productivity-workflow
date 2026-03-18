@@ -92,3 +92,16 @@ Do not use `invalidateQueries({ queryKey: [] })` (invalidates everything). Alway
 - Do not write comments explaining what a line of code does — only why, and only when non-obvious.
 - Do not use emojis anywhere in code, comments, or commit messages unless explicitly requested.
 - Do not create abstraction layers (helpers, wrappers, HOCs) for one-off use.
+
+---
+
+## Testing conventions
+
+- **Runner**: Vitest with globals enabled. Config at `todo-app/vitest.config.ts`.
+- **Test location**: `todo-app/test/` mirrors the source tree (e.g., `lib/utils/date.ts` -> `test/lib/utils/date.test.ts`).
+- **Scripts**: `pnpm test` (single run), `pnpm test:watch` (watch mode), `pnpm test:coverage` (with v8 coverage).
+- **Mock Prisma**: `vi.mock("@/lib/prisma", () => ({ prisma: mockPrisma }))` where `mockPrisma` has `vi.fn()` stubs for each model method.
+- **API route tests**: construct `NextRequest`, pass `{ params: Promise.resolve({ id }) }` as route context, assert status codes and JSON bodies.
+- **Date-dependent tests**: use `vi.useFakeTimers()` + `vi.setSystemTime()`, restore in `afterEach`.
+- **What to test**: utility functions (pure logic), API routes (auth, not-found, success), hooks (with `renderHook` + QueryClient wrapper).
+- **What not to test**: Shadcn UI primitives, third-party library internals, trivial pass-through components.
