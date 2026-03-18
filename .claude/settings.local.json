@@ -4,10 +4,25 @@
       "Bash(pnpm prisma:*)",
       "Bash(git:*)",
       "Bash(pnpm build:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm lint:*)",
       "WebSearch",
       "WebFetch(domain:github-contributions-api.jogruber.de)",
       "WebFetch(domain:github.com)",
       "Bash(curl:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "command": "cd todo-app && npx tsc --noEmit 2>&1 | head -20 || true"
+      }
+    ],
+    "PreCommit": [
+      {
+        "command": "cd todo-app && pnpm lint && pnpm test"
+      }
     ]
   }
 }
