@@ -159,6 +159,14 @@ Interactive (fast):   transition-all duration-300                  (buttons, bad
 
 ---
 
+## Testing policy
+
+- **Do NOT create, modify, or delete test files** (`todo-app/test/**`) during feature development or bug fix tasks.
+- Tests are user-managed. Only touch test files when the user **explicitly** asks for test work (e.g., "write tests for X", "update the tests", "fix the failing test").
+- Running `pnpm test` to verify nothing is broken is fine — just don't write or edit test code unless asked.
+
+---
+
 ## Code style rules
 
 - No emojis in code or comments unless the user explicitly asks.

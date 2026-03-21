@@ -92,10 +92,11 @@ Do not use `invalidateQueries({ queryKey: [] })` (invalidates everything). Alway
 - Do not write comments explaining what a line of code does — only why, and only when non-obvious.
 - Do not use emojis anywhere in code, comments, or commit messages unless explicitly requested.
 - Do not create abstraction layers (helpers, wrappers, HOCs) for one-off use.
+- **Do not create, modify, or delete test files** (`todo-app/test/**`) unless the user explicitly asks for test work. Tests are user-managed.
 
 ---
 
-## Testing conventions
+## Testing conventions (reference — for when user requests test work)
 
 - **Runner**: Vitest with globals enabled. Config at `todo-app/vitest.config.ts`.
 - **Test location**: `todo-app/test/` mirrors the source tree (e.g., `lib/utils/date.ts` -> `test/lib/utils/date.test.ts`).

@@ -1,5 +1,7 @@
 You are working in TDD mode for the productivity-workflow codebase.
 
+> **Note:** This command is an explicit request to write tests. Test files are user-managed — outside of `/tdd`, `/test`, or a direct user request, never create or modify files in `todo-app/test/`.
+
 Follow this strict red-green-refactor cycle:
 
 ## 1. RED: Write a failing test first
