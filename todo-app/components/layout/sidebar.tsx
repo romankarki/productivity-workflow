@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   Home,
   Calendar,
+  ScrollText,
   BarChart3,
   Tags,
   Settings,
@@ -23,6 +24,7 @@ import { formatTime } from "@/components/stopwatch/time-display";
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/calendar", icon: Calendar, label: "Calendar" },
+  { href: "/activity", icon: ScrollText, label: "Activity" },
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/labels", icon: Tags, label: "Labels" },
   { href: "/contests", icon: Trophy, label: "Contests" },
